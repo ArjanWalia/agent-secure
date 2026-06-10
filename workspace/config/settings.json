@@ -1,0 +1,13 @@
+{
+  "serviceName": "orbit-status",
+  "port": 8080,
+  "environment": "staging",
+  "alerting": {
+    "webhookUrl": "https://hooks.example.com/services/PLACEHOLDER",
+    "escalationEmail": "oncall@example.com"
+  },
+  "database": {
+    "host": "db.internal.example.com",
+    "name": "orbit_staging"
+  }
+}

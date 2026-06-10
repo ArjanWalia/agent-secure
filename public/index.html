@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AGENT:SECURE — tri-model security orchestrator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="scan-edge" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2 L21 6 V12 C21 17.5 17.2 21 12 22 C6.8 21 3 17.5 3 12 V6 Z" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M7.5 12.2 L10.6 15.2 L16.5 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/>
+      </svg>
+      <div class="brand-text">
+        <h1>AGENT<span class="accent">:</span>SECURE</h1>
+        <p>tri-model security orchestrator</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="chip" id="tokenChip" title="Cooperative token budget written to .env by Flow-Scan + Importance-Scan">
+        <span class="chip-label">MAX_TOKEN_OUTPUT</span>
+        <span class="chip-value mono" id="tokenValue">—</span>
+      </div>
+      <div class="status-pill" id="statusPill" data-state="idle">
+        <span class="dot"></span><span id="statusText">OFFLINE</span>
+      </div>
+      <button class="icon-btn" id="settingsBtn" title="Models &amp; API key" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4l-.4 2.5a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5a7 7 0 0 0 0 2.4l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.5h4l.4-2.5a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.07-.4.1-.8.1-1.2Z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="stateBanner" class="state-banner hidden" data-kind="frozen">
+    <div class="banner-copy">
+      <strong id="bannerTitle">AGENT FROZEN</strong>
+      <span id="bannerText"></span>
+    </div>
+    <button id="bannerAction" class="banner-btn">UNFREEZE AGENT</button>
+  </div>
+
+  <main class="layout">
+    <!-- ============ WORKER CHAT ============ -->
+    <section class="panel chat-panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          <span class="panel-glyph worker">W</span>
+          <h2>WORKER AGENT</h2>
+          <span class="model-tag mono" id="workerModelTag">—</span>
+        </div>
+        <button class="ghost-btn" id="clearBtn" title="Clear conversation log">clear session</button>
+      </div>
+
+      <div class="chat-log" id="chatLog">
+        <div class="chat-empty" id="chatEmpty">
+          <div class="empty-glyph">◢◤</div>
+          <p>You converse <em>only</em> with the worker agent.<br/>
+          Every file &amp; command request it makes is intercepted and scored by
+          <span class="fs-ink">FLOW-SCAN</span> and <span class="is-ink">IMPORTANCE-SCAN</span>
+          before execution.</p>
+          <p class="empty-hint mono">try: “summarize the files in this workspace” · “read secrets/credentials.env”</p>
+        </div>
+      </div>
+
+      <form class="composer" id="chatForm" autocomplete="off">
+        <textarea id="chatInput" rows="1" placeholder="Instruct the worker agent…" spellcheck="false"></textarea>
+        <button type="submit" id="sendBtn" class="send-btn">
+          <span>SEND</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ============ SECURITY SIDE PANEL ============ -->
+    <aside class="panel side-panel">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="pipeline" role="tab">PIPELINE</button>
+        <button class="tab" data-tab="registry" role="tab">FILE REGISTRY</button>
+        <button class="tab" data-tab="ledger" role="tab">FLOW LEDGER</button>
+      </div>
+
+      <div class="tab-body" id="tab-pipeline">
+        <div class="scanner-strip mono">
+          <span class="fs-ink" title="Flow-Scan model">FS · <b id="fsModelTag">—</b></span>
+          <span class="sep">/</span>
+          <span class="is-ink" title="Importance-Scan model">IS · <b id="isModelTag">—</b></span>
+        </div>
+        <div class="feed" id="pipelineFeed">
+          <div class="feed-empty mono" id="feedEmpty">— no intercepted requests yet —</div>
+        </div>
+      </div>
+
+      <div class="tab-body hidden" id="tab-registry">
+        <p class="tab-note">Importance-Scan profiles every file it encounters: <b>importance</b> to the project + <b>privacy</b> of its contents.</p>
+        <div class="table-wrap">
+          <table class="registry-table mono" id="registryTable">
+            <thead><tr><th>PATH</th><th>IMP</th><th>PRV</th><th>PROFILE</th></tr></thead>
+            <tbody id="registryBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-body hidden" id="tab-ledger">
+        <p class="tab-note">Contextual ledger of approved <span class="mono">prompt → request</span> pairs. Flow-Scan reads this to judge whether a new request fits the project trajectory.</p>
+        <div class="ledger-list" id="ledgerList"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ============ SETUP MODAL ============ -->
+  <div class="modal-backdrop hidden" id="setupModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>SYSTEM CONFIGURATION</h3>
+        <p>One Anthropic API key powers three isolated models. Each agent's model is your choice.</p>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">ANTHROPIC API KEY</span>
+          <input type="password" id="setupKey" class="mono" placeholder="sk-ant-…" />
+          <span class="field-hint" id="keyHint">Stored locally in <span class="mono">.env</span> on this machine. Never leaves your host except to api.anthropic.com.</span>
+        </label>
+
+        <div class="model-grid">
+          <label class="field">
+            <span class="field-label"><span class="role-dot worker"></span>WORKER MODEL</span>
+            <select id="setupWorker" class="mono"></select>
+            <span class="field-hint">Executes tasks. Susceptible to persuasion — hence the escort.</span>
+          </label>
+          <label class="field">
+            <span class="field-label"><span class="role-dot fs"></span>FLOW-SCAN MODEL</span>
+            <select id="setupFS" class="mono"></select>
+            <span class="field-hint">Scores each request against the flow of prior prompt + request pairs.</span>
+          </label>
+          <label class="field">
+            <span class="field-label"><span class="role-dot is"></span>IMPORTANCE-SCAN MODEL</span>
+            <select id="setupIS" class="mono"></select>
+            <span class="field-hint">Knows every file's importance &amp; privacy. Flags sensitive access.</span>
+          </label>
+        </div>
+
+        <div class="setup-error hidden mono" id="setupError"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="primary-btn" id="setupSave">INITIALIZE SYSTEM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ APPROVAL MODAL ============ -->
+  <div class="modal-backdrop hidden" id="approvalModal">
+    <div class="modal approval">
+      <div class="modal-head alert">
+        <h3 id="apTitle">⚠ REQUEST ESCALATED TO USER</h3>
+        <p id="apSubtitle">The security models flagged this worker request for your review.</p>
+      </div>
+      <div class="modal-body">
+        <div class="req-box mono">
+          <div class="req-line"><span class="req-key">TOOL</span><span id="apTool"></span></div>
+          <div class="req-line"><span class="req-key">INPUT</span><pre id="apInput"></pre></div>
+        </div>
+
+        <div class="score-block">
+          <div class="score-row">
+            <div class="score-head">
+              <span class="fs-ink mono">FLOW-SCAN</span>
+              <span class="score-num mono" id="apFsScore">—</span>
+            </div>
+            <div class="gauge fs"><div class="gauge-fill" id="apFsBar"></div><i class="tick" style="left:20%"></i><i class="tick" style="left:50%"></i></div>
+            <p class="score-reason" id="apFsReason"></p>
+          </div>
+          <div class="score-row">
+            <div class="score-head">
+              <span class="is-ink mono">IMPORTANCE-SCAN</span>
+              <span class="score-num mono" id="apIsScore">—</span>
+            </div>
+            <div class="gauge is"><div class="gauge-fill" id="apIsBar"></div><i class="tick" style="left:81%"></i></div>
+            <p class="score-reason" id="apIsReason"></p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot split">
+        <button class="danger-btn" id="apDeny">DENY &amp; HALT AGENT</button>
+        <button class="primary-btn" id="apApprove">APPROVE REQUEST</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
