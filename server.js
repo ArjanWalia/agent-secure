@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 memory.ensureDirs();
 memory.indexWorkspace();
 memory.setMaxTokenOutput(memory.getMaxTokenOutput()); // ensure .env exists with a starting budget
+if (memory.repairConversation()) {
+  console.log("[agent-secure] repaired conversation log left dangling by an interrupted run");
+}
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -25,6 +28,17 @@ const orchestrator = new Orchestrator();
 
 const sseClients = new Set();
 
+// A dead browser connection must never throw into the pipeline mid-run.
+function broadcast(frame) {
+  for (const res of [...sseClients]) {
+    try {
+      res.write(frame);
+    } catch {
+      sseClients.delete(res);
+    }
+  }
+}
+
 app.get("/api/events", (req, res) => {
   res.set({
     "Content-Type": "text/event-stream",
@@ -34,16 +48,18 @@ app.get("/api/events", (req, res) => {
   res.flushHeaders();
   res.write(`data: ${JSON.stringify({ type: "agent_state", status: orchestrator.status })}\n\n`);
   sseClients.add(res);
-  req.on("close", () => sseClients.delete(res));
+  const drop = () => sseClients.delete(res);
+  req.on("close", drop);
+  req.on("error", drop);
+  res.on("error", drop);
 });
 
 orchestrator.on("event", (ev) => {
-  const frame = `data: ${JSON.stringify(ev)}\n\n`;
-  for (const res of sseClients) res.write(frame);
+  broadcast(`data: ${JSON.stringify(ev)}\n\n`);
 });
 
 setInterval(() => {
-  for (const res of sseClients) res.write(": keep-alive\n\n");
+  broadcast(": keep-alive\n\n");
 }, 25_000);
 
 /* ---------------- config / setup ---------------- */

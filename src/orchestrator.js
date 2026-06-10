@@ -82,7 +82,7 @@ class Orchestrator extends EventEmitter {
 
   /**
    * Scan one intercepted tool request. Returns:
-   *   { action: "execute" | "reject", verdict, fs, is, errorNote }
+   *   { action: "execute" | "reject", verdict, fs, is }
    */
   async scanRequest(client, models, { prompt, toolName, input, requestId, seq }) {
     const inputSummary = tools.summarizeInput(toolName, input);
@@ -158,6 +158,71 @@ class Orchestrator extends EventEmitter {
     return { action: "execute", verdict: "approve", fs: fs_, is: is_ };
   }
 
+  /**
+   * Scan + execute one batch of tool_use blocks, pushing one tool_result into
+   * `results` for every block. Returns the terminal state ("frozen" | "halted")
+   * if the batch tripped the security system, else null.
+   */
+  async processToolBatch(client, models, userMessage, toolUses, results) {
+    let terminalState = null;
+
+    for (const tu of toolUses) {
+      // A prior block in this batch froze/halted the agent — skip the rest.
+      if (terminalState) {
+        results.push({
+          type: "tool_result", tool_use_id: tu.id, is_error: true,
+          content: `Request not executed: agent ${terminalState} by the security system.`,
+        });
+        continue;
+      }
+
+      const requestId = `req_${++this.reqCounter}_${Date.now()}`;
+      const scan = await this.scanRequest(client, models, {
+        prompt: userMessage, toolName: tu.name, input: tu.input,
+        requestId, seq: this.reqCounter,
+      });
+
+      if (scan.action === "reject") {
+        terminalState = scan.verdict === "freeze" ? "frozen" : "halted";
+        results.push({
+          type: "tool_result", tool_use_id: tu.id, is_error: true,
+          content: scan.verdict === "freeze"
+            ? `BLOCKED: Flow-Scan froze the agent (anomaly score ${scan.fs.score}/100). Reason: ${scan.fs.reasoning}`
+            : `DENIED by the user after security review. Do not retry this request.`,
+        });
+        continue;
+      }
+
+      // Approved — cooperative token provisioning, then execute.
+      const granted = this.provisionTokens(
+        scan.fs.recommended_max_tokens, scan.is.recommended_max_tokens, requestId
+      );
+
+      const result = tools.execute(tu.name, tu.input);
+      memory.indexWorkspace();
+      this.emitEvent("registry_updated", {});
+      this.emitEvent("tool_executed", {
+        id: requestId, ok: result.ok, tokens: granted,
+        output_preview: result.output.slice(0, 400),
+      });
+
+      memory.appendLedger({
+        prompt: userMessage, tool: tu.name,
+        input_summary: tools.summarizeInput(tu.name, tu.input),
+        fs_score: scan.fs.score, is_score: scan.is.score, verdict: scan.verdict,
+      });
+      this.emitEvent("ledger_updated", {});
+
+      results.push({
+        type: "tool_result", tool_use_id: tu.id,
+        is_error: !result.ok,
+        content: result.output.slice(0, MAX_RESULT_CHARS),
+      });
+    }
+
+    return terminalState;
+  }
+
   /** Full pipeline for one user message. Runs async; progress flows over SSE. */
   async runChat(userMessage) {
     if (this.busy) throw new Error("A run is already in progress");
@@ -173,6 +238,11 @@ class Orchestrator extends EventEmitter {
 
     const client = agents.makeClient(apiKey);
     const { models } = memory.getConfig();
+
+    // heal any tool_use left dangling by a crash/restart before extending the log
+    if (memory.repairConversation()) {
+      this.emitEvent("error", { message: "recovered an interrupted session — unfinished requests were marked as not executed" });
+    }
 
     memory.appendConversation({ role: "user", content: userMessage });
 
@@ -197,58 +267,21 @@ class Orchestrator extends EventEmitter {
         const toolUses = response.content.filter((b) => b.type === "tool_use");
         const results = [];
 
-        for (const tu of toolUses) {
-          // A prior block in this batch froze/halted the agent — skip the rest.
-          if (terminalState) {
-            results.push({
-              type: "tool_result", tool_use_id: tu.id, is_error: true,
-              content: `Request not executed: agent ${terminalState} by the security system.`,
-            });
-            continue;
+        try {
+          terminalState = await this.processToolBatch(client, models, userMessage, toolUses, results);
+        } catch (err) {
+          // never persist a dangling tool_use: answer unresolved ids before surfacing the error
+          const resolved = new Set(results.map((r) => r.tool_use_id));
+          for (const tu of toolUses) {
+            if (!resolved.has(tu.id)) {
+              results.push({
+                type: "tool_result", tool_use_id: tu.id, is_error: true,
+                content: `Not executed — orchestrator error: ${err.message}`,
+              });
+            }
           }
-
-          const requestId = `req_${++this.reqCounter}_${Date.now()}`;
-          const scan = await this.scanRequest(client, models, {
-            prompt: userMessage, toolName: tu.name, input: tu.input,
-            requestId, seq: this.reqCounter,
-          });
-
-          if (scan.action === "reject") {
-            terminalState = scan.verdict === "freeze" ? "frozen" : "halted";
-            results.push({
-              type: "tool_result", tool_use_id: tu.id, is_error: true,
-              content: scan.verdict === "freeze"
-                ? `BLOCKED: Flow-Scan froze the agent (anomaly score ${scan.fs.score}/100). Reason: ${scan.fs.reasoning}`
-                : `DENIED by the user after security review. Do not retry this request.`,
-            });
-            continue;
-          }
-
-          // Approved — cooperative token provisioning, then execute.
-          const granted = this.provisionTokens(
-            scan.fs.recommended_max_tokens, scan.is.recommended_max_tokens, requestId
-          );
-
-          const result = tools.execute(tu.name, tu.input);
-          memory.indexWorkspace();
-          this.emitEvent("registry_updated", {});
-          this.emitEvent("tool_executed", {
-            id: requestId, ok: result.ok, tokens: granted,
-            output_preview: result.output.slice(0, 400),
-          });
-
-          memory.appendLedger({
-            prompt: userMessage, tool: tu.name,
-            input_summary: tools.summarizeInput(tu.name, tu.input),
-            fs_score: scan.fs.score, is_score: scan.is.score, verdict: scan.verdict,
-          });
-          this.emitEvent("ledger_updated", {});
-
-          results.push({
-            type: "tool_result", tool_use_id: tu.id,
-            is_error: !result.ok,
-            content: result.output.slice(0, MAX_RESULT_CHARS),
-          });
+          memory.appendConversation({ role: "user", content: results });
+          throw err;
         }
 
         memory.appendConversation({ role: "user", content: results });

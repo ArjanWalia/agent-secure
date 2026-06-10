@@ -129,6 +129,58 @@ function clearConversation() {
   saveJSON(FILES.conversation, []);
 }
 
+/**
+ * Self-heal the conversation log. The API requires every `tool_use` block to be
+ * answered by a `tool_result` in the immediately following user message. A crash,
+ * server restart mid-run, or an approval pending at shutdown can persist a dangling
+ * `tool_use` — which would poison every subsequent request with a 400. Walk the log
+ * and patch any unmatched ids with synthetic error results.
+ */
+function repairConversation() {
+  const log = getConversation();
+  const fixed = [];
+  let changed = false;
+
+  for (let i = 0; i < log.length; i++) {
+    const msg = log[i];
+    fixed.push(msg);
+
+    const toolUseIds =
+      msg.role === "assistant" && Array.isArray(msg.content)
+        ? msg.content.filter((b) => b.type === "tool_use").map((b) => b.id)
+        : [];
+    if (!toolUseIds.length) continue;
+
+    const next = log[i + 1];
+    const nextResultIds =
+      next && next.role === "user" && Array.isArray(next.content)
+        ? next.content.filter((b) => b.type === "tool_result").map((b) => b.tool_use_id)
+        : [];
+
+    const missing = toolUseIds.filter((id) => !nextResultIds.includes(id));
+    if (!missing.length) continue;
+
+    changed = true;
+    const synthetic = missing.map((id) => ({
+      type: "tool_result",
+      tool_use_id: id,
+      is_error: true,
+      content:
+        "No result recorded — the orchestrator was interrupted before this request completed. Treat it as not executed.",
+    }));
+
+    if (nextResultIds.length) {
+      // partial batch: prepend the missing results into the existing result message
+      next.content = [...synthetic, ...next.content];
+    } else {
+      fixed.push({ role: "user", content: synthetic });
+    }
+  }
+
+  if (changed) saveJSON(FILES.conversation, fixed);
+  return changed;
+}
+
 /** Flatten the structured log into displayable {role, text} turns for the UI. */
 function transcript() {
   const out = [];
@@ -248,7 +300,7 @@ module.exports = {
   getApiKey, setApiKey,
   getMaxTokenOutput, setMaxTokenOutput, clampTokens,
   getConfig, setModels,
-  getConversation, appendConversation, clearConversation, transcript,
+  getConversation, appendConversation, clearConversation, repairConversation, transcript,
   getLedger, appendLedger,
   getRegistry, indexWorkspace, applyProfiles, clampScore,
 };
