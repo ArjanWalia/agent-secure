@@ -64,7 +64,11 @@ Every worker tool request flows through, in order:
 5. **Token provisioning** — on approval, the two scanners' per-step token
    recommendations are combined cooperatively and written to `.env` as
    `MAX_TOKEN_OUTPUT`. The worker's next execution step is provisioned **only the
-   tokens it needs for that task**.
+   tokens it needs for that task**. If the worker exhausts that budget mid-task,
+   you're asked to either keep the truncated output or **grant unlimited tokens**:
+   approving discards the truncated attempt and re-runs the turn at the model's
+   full output ceiling for the rest of that task (the cooperative budget resumes
+   on your next message).
 6. **Execute** — the tool runs inside the sandboxed `./workspace` directory
    (path escapes are rejected) and the approved pair is appended to the flow ledger.
 

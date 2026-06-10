@@ -18,6 +18,19 @@ const ADAPTIVE_THINKING_MODELS = new Set([
 
 const SCANNER_MAX_TOKENS = 8000;
 
+/** Hard output ceiling per model — "unlimited" grants resolve to this. */
+const MODEL_MAX_OUTPUT = {
+  "claude-opus-4-8": 128000,
+  "claude-opus-4-7": 128000,
+  "claude-opus-4-6": 128000,
+  "claude-sonnet-4-6": 64000,
+  "claude-haiku-4-5": 64000,
+};
+
+function maxOutputFor(model) {
+  return MODEL_MAX_OUTPUT[model] || 64000;
+}
+
 function makeClient(apiKey) {
   return new Anthropic({ apiKey });
 }
@@ -41,14 +54,19 @@ Security architecture you live under:
 Style: be concise and practical. Narrate briefly what you're about to do before calling tools. Never invent file contents — read them.`;
 
 async function callWorker(client, model, messages, maxTokens) {
-  return client.messages.create({
+  const params = {
     model,
     max_tokens: maxTokens,
     system: WORKER_SYSTEM,
     tools: TOOL_DEFS,
     messages,
     ...thinkingFor(model),
-  });
+  };
+  // Large budgets (unlimited grants) must stream to avoid HTTP timeouts.
+  if (maxTokens > 16000) {
+    return client.messages.stream(params).finalMessage();
+  }
+  return client.messages.create(params);
 }
 
 /* ================= SCANNERS ================= */
@@ -224,4 +242,4 @@ Score the sensitivity 0-100, profile every affected file, and respond with JSON.
   };
 }
 
-module.exports = { makeClient, callWorker, callFlowScan, callImportanceScan };
+module.exports = { makeClient, callWorker, callFlowScan, callImportanceScan, maxOutputFor };

@@ -195,6 +195,32 @@
     </div>
   </div>
 
+  <!-- ============ TOKEN GRANT MODAL ============ -->
+  <div class="modal-backdrop hidden" id="tokenModal">
+    <div class="modal approval">
+      <div class="modal-head alert">
+        <h3>◎ TOKEN BUDGET EXHAUSTED</h3>
+        <p id="tokSubtitle">The worker agent ran out of provisioned output tokens mid-task.</p>
+      </div>
+      <div class="modal-body">
+        <div class="req-box mono">
+          <div class="req-line"><span class="req-key">TASK</span><pre id="tokPrompt"></pre></div>
+          <div class="req-line"><span class="req-key">BUDGET</span><span id="tokBudget"></span></div>
+        </div>
+        <p class="score-reason">
+          Approving lifts the cap entirely — the worker may use <b>as many tokens as it needs</b>
+          to finish this task (the truncated attempt is discarded and re-run). Denying keeps the
+          truncated output. Either way, the cooperative Flow-Scan + Importance-Scan budget
+          resumes on your next message.
+        </p>
+      </div>
+      <div class="modal-foot split">
+        <button class="danger-btn" id="tokDeny">KEEP TRUNCATED OUTPUT</button>
+        <button class="primary-btn" id="tokApprove">GRANT UNLIMITED TOKENS</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

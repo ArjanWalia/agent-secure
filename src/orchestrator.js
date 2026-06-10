@@ -29,6 +29,7 @@ class Orchestrator extends EventEmitter {
     this.busy = false;
     this.reqCounter = 0;
     this.pending = null; // { id, payload, resolve }
+    this.unlimitedTokens = false; // user-granted, lasts for the current run only
   }
 
   emitEvent(type, data = {}) {
@@ -47,9 +48,18 @@ class Orchestrator extends EventEmitter {
     return "approve";
   }
 
-  /** The two scan models cooperatively set the worker's token provision. */
+  /**
+   * The two scan models cooperatively set the worker's token provision.
+   * While a user-granted unlimited run is active, the cooperative value is
+   * still persisted to .env (it applies from the next run) but the live
+   * grant stays uncapped.
+   */
   provisionTokens(fsRec, isRec, requestId) {
     const budget = memory.setMaxTokenOutput(Math.round((fsRec + isRec) / 2));
+    if (this.unlimitedTokens) {
+      this.emitEvent("env_updated", { maxTokenOutput: "unlimited", id: requestId });
+      return "unlimited";
+    }
     this.emitEvent("env_updated", { maxTokenOutput: budget, id: requestId });
     return budget;
   }
@@ -63,13 +73,24 @@ class Orchestrator extends EventEmitter {
     });
   }
 
+  /** Worker exhausted its provisioned budget — ask the user to lift the cap. */
+  awaitTokenDecision(budget, prompt) {
+    return new Promise((resolve) => {
+      const id = `tok_${++this.reqCounter}_${Date.now()}`;
+      const payload = { id, kind: "tokens", budget, prompt };
+      this.pending = { id, payload, resolve };
+      this.setStatus("pending");
+      this.emitEvent("token_approval_required", payload);
+    });
+  }
+
   resolveDecision(id, approve) {
     if (!this.pending || this.pending.id !== id) {
       throw new Error("No matching pending request");
     }
     const { resolve, payload } = this.pending;
     this.pending = null;
-    this.emitEvent("user_decision", { id, seq: payload.seq, approve });
+    this.emitEvent("user_decision", { id, seq: payload.seq, kind: payload.kind || "security", approve });
     resolve(approve);
   }
 
@@ -143,7 +164,7 @@ class Orchestrator extends EventEmitter {
           ? `Flow-Scan rated this request ${fs_.score}/100 out-of-line with your prompt flow.`
           : `Importance-Scan rated the affected material ${is_.score}/100 — this touches important or private files.`;
       const approved = await this.awaitUserDecision({
-        id: requestId, seq, tool: toolName,
+        id: requestId, seq, kind: "security", tool: toolName,
         input_summary: inputSummary, reason,
         fs: { score: fs_.score, reasoning: fs_.reasoning },
         is: { score: is_.score, reasoning: is_.reasoning },
@@ -250,8 +271,23 @@ class Orchestrator extends EventEmitter {
 
     try {
       for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-        const budget = memory.getMaxTokenOutput();
+        const budget = this.unlimitedTokens
+          ? agents.maxOutputFor(models.worker)
+          : memory.getMaxTokenOutput();
         const response = await agents.callWorker(client, models.worker, memory.getConversation(), budget);
+
+        // Budget exhausted mid-task: offer the user an unlimited grant BEFORE
+        // anything is persisted. Approval discards the truncated attempt and
+        // re-runs the turn with the model's full output ceiling.
+        if (response.stop_reason === "max_tokens" && !this.unlimitedTokens) {
+          const granted = await this.awaitTokenDecision(budget, userMessage);
+          this.setStatus("working");
+          if (granted) {
+            this.unlimitedTokens = true;
+            this.emitEvent("env_updated", { maxTokenOutput: "unlimited" });
+            continue;
+          }
+        }
 
         memory.appendConversation({ role: "assistant", content: response.content });
 
@@ -259,7 +295,19 @@ class Orchestrator extends EventEmitter {
         if (text) this.emitEvent("worker_message", { text });
 
         if (response.stop_reason === "max_tokens") {
-          this.emitEvent("error", { message: `worker hit its provisioned token budget (${budget}) — output truncated` });
+          // user kept the truncation, or the model's own ceiling was reached
+          this.emitEvent("error", { message: `output truncated at ${budget} tokens` });
+          const dangling = response.content.filter((b) => b.type === "tool_use");
+          if (dangling.length) {
+            memory.appendConversation({
+              role: "user",
+              content: dangling.map((tu) => ({
+                type: "tool_result", tool_use_id: tu.id, is_error: true,
+                content: "Not executed — the response was truncated at the token budget.",
+              })),
+            });
+          }
+          break;
         }
 
         if (response.stop_reason !== "tool_use") break;
@@ -297,6 +345,11 @@ class Orchestrator extends EventEmitter {
     } finally {
       this.busy = false;
       this.pending = null;
+      if (this.unlimitedTokens) {
+        // the grant covers one task — the cooperative budget resumes next run
+        this.unlimitedTokens = false;
+        this.emitEvent("env_updated", { maxTokenOutput: memory.getMaxTokenOutput() });
+      }
       this.setStatus(terminalState || "idle");
       this.emitEvent("run_finished", {});
     }

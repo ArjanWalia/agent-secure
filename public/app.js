@@ -284,10 +284,18 @@
     $("approvalModal").classList.remove("hidden");
   }
 
+  function openTokenModal(p) {
+    state.pendingApproval = p;
+    $("tokPrompt").textContent = p.prompt || "";
+    $("tokBudget").textContent = `${p.budget} tokens — exhausted`;
+    $("tokenModal").classList.remove("hidden");
+  }
+
   async function sendDecision(approve) {
     const p = state.pendingApproval;
     if (!p) return;
     $("approvalModal").classList.add("hidden");
+    $("tokenModal").classList.add("hidden");
     state.pendingApproval = null;
     try {
       await api("/api/decision", { method: "POST", body: { id: p.id, approve } });
@@ -298,6 +306,8 @@
 
   $("apApprove").addEventListener("click", () => sendDecision(true));
   $("apDeny").addEventListener("click", () => sendDecision(false));
+  $("tokApprove").addEventListener("click", () => sendDecision(true));
+  $("tokDeny").addEventListener("click", () => sendDecision(false));
 
   /* ---------------- setup modal ---------------- */
 
@@ -467,7 +477,21 @@
         openApproval(ev);
         break;
 
+      case "token_approval_required":
+        addSysLine(`worker exhausted its ${ev.budget}-token budget — escalating to you`, "warn");
+        openTokenModal(ev);
+        break;
+
       case "user_decision":
+        if (ev.kind === "tokens") {
+          addSysLine(
+            ev.approve
+              ? "unlimited tokens granted — re-running the task uncapped"
+              : "truncated output kept — budget unchanged",
+            ev.approve ? "ok" : "warn"
+          );
+          break;
+        }
         if (!ev.approve) addSysLine(`request #${ev.seq} denied — worker halted`, "bad");
         else addSysLine(`request #${ev.seq} approved by user`, "ok");
         cardVerdict(ev.id, ev.approve ? "user_approved" : "denied");
@@ -479,12 +503,13 @@
         break;
 
       case "env_updated": {
-        $("tokenValue").textContent = ev.maxTokenOutput;
+        const unlimited = ev.maxTokenOutput === "unlimited";
         const chip = $("tokenValue");
+        chip.textContent = unlimited ? "∞ UNLIMITED" : ev.maxTokenOutput;
         chip.classList.remove("flash");
         void chip.offsetWidth;
         chip.classList.add("flash");
-        if (ev.id) cardTokens(ev.id, ev.maxTokenOutput);
+        if (ev.id) cardTokens(ev.id, unlimited ? "∞" : ev.maxTokenOutput);
         break;
       }
 
@@ -527,7 +552,10 @@
     } else {
       const st = await api("/api/state").catch(() => null);
       setStatus(st?.status || "idle");
-      if (st?.pendingApproval) openApproval(st.pendingApproval);
+      if (st?.pendingApproval) {
+        if (st.pendingApproval.kind === "tokens") openTokenModal(st.pendingApproval);
+        else openApproval(st.pendingApproval);
+      }
       // replay persisted conversation so a reload doesn't lose the thread
       if (st?.transcript?.length) {
         $("chatLog").innerHTML = "";
