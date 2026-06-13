@@ -145,7 +145,10 @@ export const COURSE: Course = {
       description:
         'Follow a transaction from creation to finality — through smart contracts, gas, the mempool, and confirmation.',
       lessons: [
-        lesson('s4l1', 'Anatomy of a transaction (from, to, value, data, nonce)'),
+        lesson('s4l1', 'Anatomy of a transaction (from, to, value, data, nonce)', {
+          teach: [{ title: 'The full flow of a transaction', visualId: 'tx-flow' }],
+          quiz: 0,
+        }),
         lesson('s4l2', 'Signing a transaction (the private key proves authorization)'),
         lesson('s4l3', 'Gas & gas fees (base fee + priority fee)'),
         lesson('s4l4', 'How transactions move through smart contracts (calls, EVM execution)'),
