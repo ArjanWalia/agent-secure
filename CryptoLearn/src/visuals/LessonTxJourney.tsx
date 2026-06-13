@@ -12,10 +12,11 @@ const STEP_COUNT = 1;
 
 // Waypoints (x%, y%) the money travels through.
 const STOPS = [
-  { x: 10, y: 45, emoji: '👛', label: 'Wallet A' },
-  { x: 37, y: 45, emoji: '🕓', label: 'Mempool' },
-  { x: 64, y: 45, emoji: '👷🧱', label: 'Validator → block' },
-  { x: 90, y: 45, emoji: '👛', label: 'Wallet B' },
+  { x: 8, y: 45, emoji: '👛', label: 'Wallet A' },
+  { x: 30, y: 45, emoji: '🕓', label: 'Mempool' },
+  { x: 50, y: 45, emoji: '👷🧱', label: 'Validator → block' },
+  { x: 71, y: 45, emoji: '📄', label: 'Smart contract' },
+  { x: 92, y: 45, emoji: '👛', label: 'Wallet B' },
 ];
 
 function pos(t: number) {
@@ -34,7 +35,8 @@ const CAPTIONS = [
   'Wallet A broadcasts the transaction — it heads to the mempool.',
   'The transaction waits in the mempool with everyone else’s.',
   'A validator picks it and packs it into a block.',
-  'The block is added to the chain and Wallet B receives the funds. ✅',
+  'As the block runs, the smart contract 📄 executes the transfer.',
+  'The funds arrive in Wallet B. ✅',
 ];
 
 export function LessonTxJourney({ onComplete, onBack }: VisualProps) {
@@ -45,7 +47,7 @@ export function LessonTxJourney({ onComplete, onBack }: VisualProps) {
   const t = s / 100;
   const m = pos(t);
   // Which stop is "active" — used for highlighting and the caption.
-  const active = t >= 0.97 ? 3 : m.seg;
+  const active = t >= 0.97 ? STOPS.length - 1 : m.seg;
 
   return (
     <div className="scene scene--full" onClick={advance}>
