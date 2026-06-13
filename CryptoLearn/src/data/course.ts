@@ -85,7 +85,10 @@ export const COURSE: Course = {
       description:
         'Understand what kinds of crypto exist and what the headline coins actually are.',
       lessons: [
-        lesson('s2l1', 'Coins vs. tokens (native currency vs. assets on top of a chain)'),
+        lesson('s2l1', 'Coins vs. tokens (native currency vs. assets on top of a chain)', {
+          teach: [{ title: 'Coins vs. tokens', visualId: 'coins-vs-tokens' }],
+          quiz: 0,
+        }),
         lesson('s2l2', 'Bitcoin (BTC) — the original, store-of-value model'),
         lesson('s2l3', 'Ether (ETH) — fuel for Ethereum'),
         lesson('s2l4', 'Stablecoins (USDC, USDT — value pegged to fiat)'),
