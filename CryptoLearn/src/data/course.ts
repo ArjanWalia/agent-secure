@@ -93,7 +93,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Bitcoin', visualId: 'bitcoin' }],
           quiz: 0,
         }),
-        lesson('s2l3', 'Ether (ETH) — fuel for Ethereum'),
+        lesson('s2l3', 'Ether (ETH) — fuel for Ethereum', {
+          teach: [{ title: 'Ether', visualId: 'ether' }],
+          quiz: 0,
+        }),
         lesson('s2l4', 'Stablecoins (USDC, USDT — value pegged to fiat)'),
         lesson('s2l5', 'Token standards on Ethereum (ERC-20 and what makes a token)'),
         lesson('s2l6', 'Other notable categories (altcoins, meme coins, NFTs)'),

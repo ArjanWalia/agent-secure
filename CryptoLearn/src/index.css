@@ -812,6 +812,70 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 2.3 — Ether (fuel + adoption chart) */
+.diagram--fuel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 200px;
+  font-size: 30px;
+}
+.fuel-emoji,
+.fuel-pump {
+  font-size: 48px;
+}
+.fuel-action {
+  font-size: 44px;
+  transition: transform 0.3s ease;
+}
+.fuel-action--run {
+  animation: spinOnce 0.6s ease;
+}
+@keyframes spinOnce {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+.diagram--chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  min-height: 240px;
+  padding: 16px;
+}
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 150px;
+}
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 6px;
+}
+.chart-bar {
+  width: 30px;
+  background: var(--grad);
+  border-radius: 6px 6px 0 0;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.chart-year {
+  font-size: 12px;
+  color: var(--muted);
+}
+.chart-crowd {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 22px;
+}
+
 /* Lesson 2.2 — Bitcoin */
 .diagram--satoshi {
   display: flex;
