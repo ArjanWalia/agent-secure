@@ -812,6 +812,85 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 3.5 — how wallets connect */
+.diagram--conn,
+.diagram--rpc,
+.diagram--read,
+.diagram--sign2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  min-height: 180px;
+}
+.conn-wallet,
+.conn-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 36px;
+}
+.conn-keys {
+  font-size: 20px;
+}
+.conn-link {
+  font-size: 22px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+.conn-link--on {
+  color: var(--aqua-strong);
+}
+.rpc-emoji {
+  font-size: 38px;
+}
+.rpc-pipe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 140px;
+  border-top: 3px dashed var(--border);
+  padding-top: 8px;
+}
+.rpc-label {
+  font-weight: 700;
+  color: var(--purple);
+}
+.rpc-msg {
+  font-size: 13px;
+  color: var(--aqua-strong);
+  font-weight: 600;
+}
+.read-result {
+  font-weight: 700;
+  color: var(--aqua-strong);
+  font-size: 18px;
+}
+.read-reqs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.pill {
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.pill--ok {
+  background: rgba(20, 196, 196, 0.14);
+  color: var(--aqua-strong);
+}
+.pill--warn {
+  background: var(--yellow-soft);
+  color: #8a6d00;
+}
+
 /* Lesson 3.4 — full wallet architecture A↔B */
 .diagram--arch {
   display: flex;

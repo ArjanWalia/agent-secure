@@ -133,7 +133,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Wallet architecture', visualId: 'wallet-architecture' }],
           quiz: 0,
         }),
-        lesson('s3l5', 'How wallets connect to the blockchain (nodes, RPC, reading vs. signing)'),
+        lesson('s3l5', 'How wallets connect to the blockchain (nodes, RPC, reading vs. signing)', {
+          teach: [{ title: 'How wallets connect', visualId: 'wallet-connect' }],
+          quiz: 0,
+        }),
       ],
     },
     {

@@ -14,6 +14,7 @@ import { LessonWallet } from './LessonWallet';
 import { LessonAddresses } from './LessonAddresses';
 import { LessonPrivateKeys } from './LessonPrivateKeys';
 import { LessonWalletArchitecture } from './LessonWalletArchitecture';
+import { LessonWalletConnect } from './LessonWalletConnect';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -43,4 +44,5 @@ export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   addresses: LessonAddresses,
   'private-keys': LessonPrivateKeys,
   'wallet-architecture': LessonWalletArchitecture,
+  'wallet-connect': LessonWalletConnect,
 };
