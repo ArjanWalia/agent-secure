@@ -812,6 +812,50 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 4.4 — the mempool */
+.diagram--mempool {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-height: 220px;
+  padding: 16px;
+}
+.mempool-pool,
+.mempool-block {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 180px;
+  box-shadow: var(--shadow-sm);
+}
+.mempool-block {
+  border-color: var(--purple);
+}
+.mempool-head {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.mempool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mempool-tx {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.mempool-tx--in {
+  background: var(--yellow-soft);
+  border-color: var(--yellow);
+}
+
 /* Lesson 4.3 — transactions through smart contracts */
 .diagram--exec {
   display: flex;
