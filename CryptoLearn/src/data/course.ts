@@ -161,8 +161,14 @@ export const COURSE: Course = {
           teach: [{ title: 'The mempool', visualId: 'mempool' }],
           quiz: 0,
         }),
-        lesson('s4l5', 'Block inclusion & confirmations'),
-        lesson('s4l6', 'Finality (when a transaction is truly irreversible)'),
+        lesson('s4l5', 'Block inclusion & confirmations', {
+          teach: [{ title: 'Block inclusion', visualId: 'block-inclusion' }],
+          quiz: 0,
+        }),
+        lesson('s4l6', 'The full journey: wallet A → mempool → validator → block → wallet B', {
+          teach: [{ title: 'The full journey', visualId: 'tx-journey' }],
+          quiz: 0,
+        }),
       ],
     },
   ],

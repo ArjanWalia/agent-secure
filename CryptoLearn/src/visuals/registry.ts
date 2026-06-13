@@ -19,6 +19,8 @@ import { LessonTxFlow } from './LessonTxFlow';
 import { LessonGas } from './LessonGas';
 import { LessonContractExec } from './LessonContractExec';
 import { LessonMempool } from './LessonMempool';
+import { LessonBlockInclusion } from './LessonBlockInclusion';
+import { LessonTxJourney } from './LessonTxJourney';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -53,4 +55,6 @@ export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   'gas-fees': LessonGas,
   'contract-exec': LessonContractExec,
   mempool: LessonMempool,
+  'block-inclusion': LessonBlockInclusion,
+  'tx-journey': LessonTxJourney,
 };

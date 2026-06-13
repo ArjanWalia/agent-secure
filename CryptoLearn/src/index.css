@@ -812,6 +812,84 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 4.5 — block inclusion */
+.diagram--inclusion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 16px;
+}
+.incl-pending {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.incl-chain {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.incl-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 38px;
+}
+.incl-brick--yours {
+  filter: drop-shadow(0 0 8px var(--purple));
+}
+.incl-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--purple-strong);
+}
+
+/* Lesson 4.6 — full journey */
+.diagram--journey {
+  height: 260px;
+}
+.journey-stop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease),
+    transform var(--ease);
+}
+.journey-stop--hot {
+  border-color: var(--aqua);
+  box-shadow: 0 0 0 3px rgba(20, 196, 196, 0.2);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+.journey-emoji {
+  font-size: 28px;
+}
+.journey-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.journey-money {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 26px;
+  transition: left 0.1s linear, top 0.1s linear, opacity 0.3s ease;
+}
+
 /* Lesson 4.4 — the mempool */
 .diagram--mempool {
   display: flex;
