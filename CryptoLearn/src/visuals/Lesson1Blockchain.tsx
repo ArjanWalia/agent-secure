@@ -1,5 +1,6 @@
 import { useState, type MouseEvent } from 'react';
 import type { VisualProps } from './registry';
+import { useStepper } from './useStepper';
 
 // ===========================================================================
 // Lesson 1 · "What is a blockchain?" — one big page, five sections.
@@ -22,7 +23,7 @@ function quad(p0: number[], p1: number[], p2: number[], u: number): number[] {
 }
 
 export function Lesson1Blockchain({ onComplete, onBack }: VisualProps) {
-  const [step, setStep] = useState(0);
+  const { step, isLast, advance, prev, stepClass } = useStepper(STEP_COUNT);
 
   // Per-diagram interactive state.
   const [pay, setPay] = useState(0); // §1 slider 0..100 (money A→bank→B)
@@ -31,20 +32,12 @@ export function Lesson1Blockchain({ onComplete, onBack }: VisualProps) {
   const [ledgerRows, setLedgerRows] = useState(1); // §4 shared-ledger entries
   const [combo, setCombo] = useState(0); // §5 slider 0..100 (replay)
 
-  const isLast = step === STEP_COUNT - 1;
-
-  function advance() {
-    if (!isLast) setStep((s) => s + 1);
-  }
-  function prev() {
-    if (step > 0) setStep((s) => s - 1);
-  }
   // Stop clicks on interactive controls from advancing the page.
   const stop = (e: MouseEvent) => e.stopPropagation();
 
   return (
     <div className="scene scene--full" onClick={advance}>
-      <div className="scene-step fade-in" key={step}>
+      <div className={stepClass} key={step}>
         {step === 0 && <SectionTransactions pay={pay} setPay={setPay} stop={stop} />}
         {step === 1 && <SectionBlockchain decent={decent} setDecent={setDecent} stop={stop} />}
         {step === 2 && <SectionBlocks blocks={blocks} setBlocks={setBlocks} stop={stop} />}

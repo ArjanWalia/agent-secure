@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { Lesson1Blockchain } from './Lesson1Blockchain';
+import { Lesson2Nodes } from './Lesson2Nodes';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -15,4 +16,5 @@ export interface VisualProps {
 // Teach pages without a registered id fall back to the static placeholder.
 export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   'lesson1-blockchain': Lesson1Blockchain,
+  'lesson2-nodes': Lesson2Nodes,
 };

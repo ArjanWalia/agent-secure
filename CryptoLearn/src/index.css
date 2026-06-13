@@ -577,6 +577,55 @@ a:hover {
 .fade-in {
   animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.fade-out {
+  animation: fadeOut 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Neural-network node diagram (Lesson 2) */
+.diagram--net {
+  height: 280px;
+}
+.net-flow {
+  stroke-dasharray: 3 7;
+  stroke-linecap: round;
+  animation-name: netFlow;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes netFlow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.net-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  user-select: none;
+  transition:
+    filter 0.3s ease,
+    transform 0.3s ease;
+}
+.net-node--validator {
+  filter: drop-shadow(0 0 7px var(--aqua));
+  transform: translate(-50%, -50%) scale(1.12);
+}
+.net-badge {
+  position: absolute;
+  right: -6px;
+  top: -8px;
+  font-size: 14px;
+}
 .tag {
   display: inline-block;
   font-size: 11px;

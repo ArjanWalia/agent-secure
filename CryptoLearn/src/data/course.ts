@@ -61,7 +61,10 @@ export const COURSE: Course = {
           teach: [{ title: 'What is a blockchain?', visualId: 'lesson1-blockchain' }],
           quiz: 0,
         }),
-        lesson('s1l2', 'Decentralization & consensus (nodes, validators, proof-of-stake)'),
+        lesson('s1l2', 'Decentralization & consensus (nodes, validators, proof-of-stake)', {
+          teach: [{ title: 'Nodes, validators & proof of stake', visualId: 'lesson2-nodes' }],
+          quiz: 0,
+        }),
         lesson('s1l3', "Ethereum's architecture (the EVM, accounts, world state)"),
         lesson('s1l4', 'Smart contracts — code that lives on-chain'),
         lesson('s1l5', 'Automation with smart contracts (how contracts execute automatically)'),
