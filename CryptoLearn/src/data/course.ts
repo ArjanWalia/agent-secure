@@ -65,7 +65,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Nodes, validators & proof of stake', visualId: 'lesson2-nodes' }],
           quiz: 0,
         }),
-        lesson('s1l3', "Ethereum's architecture (the EVM, accounts, world state)"),
+        lesson('s1l3', "Ethereum's architecture (the EVM, accounts, world state)", {
+          teach: [{ title: 'Ethereum: a global computer', visualId: 'lesson3-ethereum' }],
+          quiz: 0,
+        }),
         lesson('s1l4', 'Smart contracts — code that lives on-chain'),
         lesson('s1l5', 'Automation with smart contracts (how contracts execute automatically)'),
       ],

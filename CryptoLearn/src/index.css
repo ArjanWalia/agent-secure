@@ -626,6 +626,117 @@ a:hover {
   top: -8px;
   font-size: 14px;
 }
+
+/* Lesson 3 — globe with orbiting nodes */
+.diagram--globe {
+  height: 300px;
+}
+.globe {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 90px;
+  filter: drop-shadow(0 0 14px rgba(20, 196, 196, 0.4));
+}
+.orbit {
+  position: absolute;
+  inset: 0;
+  animation-name: orbitSpin;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes orbitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.orbit-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 26px;
+}
+.orbit-node > span {
+  display: inline-block;
+  animation-name: orbitSpinRev;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes orbitSpinRev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Lesson 3 — connect steps + wallet diagram */
+.connect-steps {
+  text-align: left;
+  max-width: 460px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.7;
+  padding-left: 22px;
+}
+.diagram--connect {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  position: relative;
+}
+.connect-emoji {
+  font-size: 44px;
+  z-index: 1;
+}
+.connect-line {
+  width: 120px;
+  height: 4px;
+  background: var(--border);
+  transition: background 0.3s ease;
+}
+.diagram--connect.connected .connect-line {
+  background: var(--aqua);
+  box-shadow: 0 0 8px var(--aqua);
+}
+.connect-ok {
+  position: absolute;
+  bottom: 18px;
+  font-weight: 700;
+  color: var(--aqua-strong);
+}
+
+/* Lesson 3 — world state table */
+.diagram--state {
+  height: auto;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  justify-content: center;
+}
+.state-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 16px;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+.state-row--changed {
+  border-color: var(--purple);
+  background: rgba(122, 92, 255, 0.08);
+}
+.state-bal {
+  font-weight: 700;
+  color: var(--purple-strong);
+}
 .tag {
   display: inline-block;
   font-size: 11px;
