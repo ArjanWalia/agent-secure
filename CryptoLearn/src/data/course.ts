@@ -117,7 +117,10 @@ export const COURSE: Course = {
       description:
         'Understand what a wallet truly is, the key pair behind it, and how it connects to the chain.',
       lessons: [
-        lesson('s3l1', 'What a wallet really is (it holds keys, not coins)'),
+        lesson('s3l1', 'What a wallet really is (it holds keys, not coins)', {
+          teach: [{ title: 'What a wallet holds', visualId: 'wallet-basics' }],
+          quiz: 0,
+        }),
         lesson('s3l2', 'Public keys & addresses (your receiving identity)'),
         lesson('s3l3', 'Private keys & seed phrases (what grants control, and the danger)'),
         lesson('s3l4', 'How a wallet derives keys & addresses (key generation, simplified)'),

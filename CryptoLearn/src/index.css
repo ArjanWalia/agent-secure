@@ -812,6 +812,74 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 3.1 — what a wallet holds */
+.diagram--wallet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 220px;
+  padding: 18px;
+}
+.wallet-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 280px;
+}
+.wallet-emoji {
+  font-size: 56px;
+}
+.wallet-keys {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.wallet-key {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.wallet-nocoins {
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 13px;
+}
+.wallet-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+}
+.wallet-link .io-arrow {
+  font-size: 24px;
+}
+.wallet-chain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 2px solid var(--purple);
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: var(--shadow-md);
+}
+.wallet-chain-head {
+  font-weight: 700;
+}
+.wallet-balance {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--purple-strong);
+}
+
 /* Lesson 2.6 — other coin categories */
 .diagram--cats {
   display: flex;
