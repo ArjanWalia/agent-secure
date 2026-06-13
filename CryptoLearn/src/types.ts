@@ -1,10 +1,12 @@
 // Shared domain types for CryptoLearn.
 
 // A teaching page — explains one sub-topic of a lesson. `content` is empty for
-// now (material is authored later); `title` is the sub-topic name.
+// now (material is authored later); `title` is the sub-topic name. `visualId`
+// optionally binds an interactive visual scene (see src/visuals/registry).
 export interface TeachPage {
   title: string;
   content: string;
+  visualId?: string;
 }
 
 // A question (used both for the per-teach-page question and for quiz questions).

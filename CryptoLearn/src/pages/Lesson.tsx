@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { COURSE, lessonQuestionNumbers } from '../data/course';
 import { useProgress } from '../hooks/useProgress';
 import { Checkmark } from '../components/Checkmark';
+import { VISUALS } from '../visuals/registry';
 
 // A lesson plays as an ordered list of screens:
 //   teach(1) → question(1) → teach(2) → question(2) → … → quizIntro → quiz Qs
@@ -124,23 +125,33 @@ export function Lesson() {
       )}
 
       {/* TEACH PAGE — teaches a sub-topic; precedes its question. */}
-      {current.type === 'teach' && (
-        <div className="card lesson-panel">
-          <span className="tag">Lesson</span>
-          <h2 className="teach-title">
-            {lesson.pairs[current.pairIndex].teach.title || `Topic ${current.pairIndex + 1}`}
-          </h2>
-          <div className="placeholder placeholder--teach">
-            {/* Teaching material intentionally empty for now. */}
-            Teaching content — coming soon
-          </div>
-          <div className="panel-actions">
-            <button className="btn btn--primary" onClick={advance}>
-              Continue to question →
-            </button>
-          </div>
-        </div>
-      )}
+      {current.type === 'teach' &&
+        (() => {
+          const teach = lesson.pairs[current.pairIndex].teach;
+          const Visual = teach.visualId ? VISUALS[teach.visualId] : undefined;
+          return (
+            <div className="card lesson-panel">
+              <span className="tag">Lesson</span>
+              <h2 className="teach-title">{teach.title || `Topic ${current.pairIndex + 1}`}</h2>
+              {Visual ? (
+                // Interactive scene owns its own Next/Previous + "continue" flow.
+                <Visual onAdvance={advance} />
+              ) : (
+                <>
+                  <div className="placeholder placeholder--teach">
+                    {/* Teaching material intentionally empty for now. */}
+                    Teaching content — coming soon
+                  </div>
+                  <div className="panel-actions">
+                    <button className="btn btn--primary" onClick={advance}>
+                      Continue to question →
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
       {/* QUIZ INTRO — shown once before the quiz questions begin. */}
       {current.type === 'quizIntro' && (

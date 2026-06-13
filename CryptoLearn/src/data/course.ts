@@ -19,22 +19,29 @@ import type { Course, Lesson, Question } from '../types';
 
 const emptyQuestion = (): Question => ({ prompt: '', visual: '' });
 
-// Build a lesson from a list of teach-page sub-topic titles plus a quiz size.
+// A teach page spec: either just a sub-topic title, or a title plus the id of
+// an interactive visual scene to render on that page.
+type TeachSpec = string | { title: string; visualId?: string };
+
+// Build a lesson from a list of teach-page specs plus a quiz size.
 function lesson(
   id: string,
   title: string,
-  opts: { teach?: string[]; quiz?: number } = {},
+  opts: { teach?: TeachSpec[]; quiz?: number } = {},
 ): Lesson {
   // Default for not-yet-mapped lessons: 3 placeholder teach pages + 5 quiz Qs.
-  const teachTitles = opts.teach ?? ['', '', ''];
+  const teachSpecs = opts.teach ?? ['', '', ''];
   const quizCount = opts.quiz ?? 5;
   return {
     id,
     title,
-    pairs: teachTitles.map((t) => ({
-      teach: { title: t, content: '' },
-      question: emptyQuestion(),
-    })),
+    pairs: teachSpecs.map((spec) => {
+      const t = typeof spec === 'string' ? { title: spec } : spec;
+      return {
+        teach: { title: t.title, content: '', visualId: t.visualId },
+        question: emptyQuestion(),
+      };
+    }),
     quiz: Array.from({ length: quizCount }, emptyQuestion),
   };
 }
@@ -52,7 +59,7 @@ export const COURSE: Course = {
         // Lesson 1 — structure mapped out in detail.
         lesson('s1l1', 'What is a blockchain?', {
           teach: [
-            'How transactions used to happen',
+            { title: 'How transactions used to happen', visualId: 'tx-before-blockchain' },
             'The blockchain solution',
             'Blocks and chains',
             'The ledger',
