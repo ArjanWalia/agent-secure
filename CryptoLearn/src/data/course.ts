@@ -89,7 +89,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Coins vs. tokens', visualId: 'coins-vs-tokens' }],
           quiz: 0,
         }),
-        lesson('s2l2', 'Bitcoin (BTC) — the original, store-of-value model'),
+        lesson('s2l2', 'Bitcoin (BTC) — the original, store-of-value model', {
+          teach: [{ title: 'Bitcoin', visualId: 'bitcoin' }],
+          quiz: 0,
+        }),
         lesson('s2l3', 'Ether (ETH) — fuel for Ethereum'),
         lesson('s2l4', 'Stablecoins (USDC, USDT — value pegged to fiat)'),
         lesson('s2l5', 'Token standards on Ethereum (ERC-20 and what makes a token)'),
