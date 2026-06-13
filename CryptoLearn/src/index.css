@@ -812,6 +812,96 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 3.2 — addresses & public keys */
+.diagram--send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 220px;
+  padding: 18px;
+}
+.send-from {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.send-emoji {
+  font-size: 38px;
+}
+.send-recipients {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.send-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition:
+    transform var(--ease),
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+.send-card .send-emoji {
+  font-size: 24px;
+}
+.send-card:hover {
+  transform: translateX(3px);
+  border-color: var(--purple);
+}
+.send-card--got {
+  border-color: var(--aqua);
+  box-shadow: 0 0 0 3px rgba(20, 196, 196, 0.18);
+}
+.send-got {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--aqua-strong);
+}
+.diagram--derive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 200px;
+  padding: 18px;
+}
+.derive-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+}
+.derive-emoji {
+  font-size: 32px;
+}
+.derive-label {
+  font-weight: 700;
+  font-size: 13px;
+}
+.derive-arrow {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--purple);
+  white-space: nowrap;
+}
+
 /* Lesson 3.1 — what a wallet holds */
 .diagram--wallet {
   display: flex;

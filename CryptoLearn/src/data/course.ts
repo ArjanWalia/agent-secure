@@ -121,7 +121,10 @@ export const COURSE: Course = {
           teach: [{ title: 'What a wallet holds', visualId: 'wallet-basics' }],
           quiz: 0,
         }),
-        lesson('s3l2', 'Public keys & addresses (your receiving identity)'),
+        lesson('s3l2', 'Public keys & addresses (your receiving identity)', {
+          teach: [{ title: 'Addresses & public keys', visualId: 'addresses' }],
+          quiz: 0,
+        }),
         lesson('s3l3', 'Private keys & seed phrases (what grants control, and the danger)'),
         lesson('s3l4', 'How a wallet derives keys & addresses (key generation, simplified)'),
         lesson('s3l5', 'How wallets connect to the blockchain (nodes, RPC, reading vs. signing)'),
