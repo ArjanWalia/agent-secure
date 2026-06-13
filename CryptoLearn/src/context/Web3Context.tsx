@@ -12,12 +12,20 @@ import { useSDK } from '@metamask/sdk-react';
 // MetaMask integration for the "Try it out yourself!" section.
 //
 // Uses the MetaMask SDK (@metamask/sdk-react) so users can connect with the
-// browser extension OR the MetaMask mobile app via QR / deep link.
+// browser extension OR the MetaMask mobile app via QR / deep link. Supports
+// sending the native coin (ETH/POL) AND the USDC token (ERC-20 transfer).
 //
 // IMPORTANT: this app NEVER sees a private key. It only asks MetaMask to
-// connect, switch network, and submit a transaction — MetaMask shows its own
-// confirmation popup and signs everything itself. We just build the request.
+// connect, switch network, watch a token, and submit a transaction — MetaMask
+// shows its own confirmation popup and signs everything itself.
 // ---------------------------------------------------------------------------
+
+interface AddParams {
+  chainName: string;
+  nativeCurrency: { name: string; symbol: string; decimals: number };
+  rpcUrls: string[];
+  blockExplorerUrls: string[];
+}
 
 export interface Network {
   id: string;
@@ -25,65 +33,70 @@ export interface Network {
   coin: string;
   emoji: string;
   chainId: string; // hex
-  // Params used if the chain isn't already in MetaMask.
-  add?: {
-    chainName: string;
-    nativeCurrency: { name: string; symbol: string; decimals: number };
-    rpcUrls: string[];
-    blockExplorerUrls: string[];
-  };
+  add?: AddParams; // used if the chain isn't already in MetaMask
+  // Present for ERC-20 coins (e.g. USDC) — absent means the native coin.
+  token?: { address: string; decimals: number };
 }
+
+// Chain definitions (so native + USDC variants can share them).
+const SEPOLIA_ADD: AddParams = {
+  chainName: 'Sepolia',
+  nativeCurrency: { name: 'Sepolia Ether', symbol: 'SepoliaETH', decimals: 18 },
+  rpcUrls: ['https://rpc.sepolia.org'],
+  blockExplorerUrls: ['https://sepolia.etherscan.io'],
+};
+const POLYGON_ADD: AddParams = {
+  chainName: 'Polygon',
+  nativeCurrency: { name: 'Polygon', symbol: 'POL', decimals: 18 },
+  rpcUrls: ['https://polygon-rpc.com'],
+  blockExplorerUrls: ['https://polygonscan.com'],
+};
+const BASE_ADD: AddParams = {
+  chainName: 'Base',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: ['https://mainnet.base.org'],
+  blockExplorerUrls: ['https://basescan.org'],
+};
 
 export const NETWORKS: Network[] = [
+  // Native coins
   { id: 'eth', label: 'Ethereum', coin: 'ETH', emoji: '💎', chainId: '0x1' },
-  {
-    id: 'sepolia',
-    label: 'Sepolia (testnet)',
-    coin: 'SepoliaETH',
-    emoji: '🧪',
-    chainId: '0xaa36a7',
-    add: {
-      chainName: 'Sepolia',
-      nativeCurrency: { name: 'Sepolia Ether', symbol: 'SepoliaETH', decimals: 18 },
-      rpcUrls: ['https://rpc.sepolia.org'],
-      blockExplorerUrls: ['https://sepolia.etherscan.io'],
-    },
-  },
-  {
-    id: 'polygon',
-    label: 'Polygon',
-    coin: 'POL',
-    emoji: '🟣',
-    chainId: '0x89',
-    add: {
-      chainName: 'Polygon',
-      nativeCurrency: { name: 'Polygon', symbol: 'POL', decimals: 18 },
-      rpcUrls: ['https://polygon-rpc.com'],
-      blockExplorerUrls: ['https://polygonscan.com'],
-    },
-  },
-  {
-    id: 'base',
-    label: 'Base',
-    coin: 'ETH',
-    emoji: '🔵',
-    chainId: '0x2105',
-    add: {
-      chainName: 'Base',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: ['https://mainnet.base.org'],
-      blockExplorerUrls: ['https://basescan.org'],
-    },
-  },
+  { id: 'sepolia', label: 'Sepolia (testnet)', coin: 'SepoliaETH', emoji: '🧪', chainId: '0xaa36a7', add: SEPOLIA_ADD },
+  { id: 'polygon', label: 'Polygon', coin: 'POL', emoji: '🟣', chainId: '0x89', add: POLYGON_ADD },
+  { id: 'base', label: 'Base', coin: 'ETH', emoji: '🔵', chainId: '0x2105', add: BASE_ADD },
+  // USDC (ERC-20, 6 decimals)
+  { id: 'usdc-eth', label: 'USDC · Ethereum', coin: 'USDC', emoji: '💵', chainId: '0x1',
+    token: { address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6 } },
+  { id: 'usdc-sepolia', label: 'USDC · Sepolia (testnet)', coin: 'USDC', emoji: '💵', chainId: '0xaa36a7', add: SEPOLIA_ADD,
+    token: { address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', decimals: 6 } },
+  { id: 'usdc-polygon', label: 'USDC · Polygon', coin: 'USDC', emoji: '💵', chainId: '0x89', add: POLYGON_ADD,
+    token: { address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', decimals: 6 } },
+  { id: 'usdc-base', label: 'USDC · Base', coin: 'USDC', emoji: '💵', chainId: '0x2105', add: BASE_ADD,
+    token: { address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', decimals: 6 } },
 ];
 
-// Parse a decimal amount string into a hex wei value (no float errors).
-function toWeiHex(amount: string): string {
+// Parse a decimal amount string into the token's smallest unit (no float errors).
+function toUnits(amount: string, decimals: number): bigint {
   const [whole = '0', frac = ''] = amount.trim().split('.');
-  const fracPadded = (frac + '0'.repeat(18)).slice(0, 18);
-  const wei = BigInt(whole || '0') * 10n ** 18n + BigInt(fracPadded || '0');
-  return '0x' + wei.toString(16);
+  const fracPadded = (frac + '0'.repeat(decimals)).slice(0, decimals);
+  return BigInt(whole || '0') * 10n ** BigInt(decimals) + BigInt(fracPadded || '0');
 }
+
+// Build the eth_sendTransaction params for either a native or ERC-20 transfer.
+function buildTxParams(net: Network, from: string, to: string, amount: string) {
+  if (net.token) {
+    // ERC-20 transfer(to, amount): selector a9059cbb + padded address + padded amount.
+    const units = toUnits(amount, net.token.decimals);
+    const data =
+      '0xa9059cbb' +
+      to.replace(/^0x/, '').toLowerCase().padStart(64, '0') +
+      units.toString(16).padStart(64, '0');
+    return { from, to: net.token.address, value: '0x0', data };
+  }
+  return { from, to, value: '0x' + toUnits(amount, 18).toString(16) };
+}
+
+type RequestFn = (args: { method: string; params?: unknown }) => Promise<unknown>;
 
 interface Web3Value {
   hasMetaMask: boolean;
@@ -105,10 +118,9 @@ interface Web3Value {
 const Web3Context = createContext<Web3Value | undefined>(undefined);
 
 export function Web3Provider({ children }: { children: ReactNode }) {
-  // Connection state comes from the MetaMask SDK.
   const { sdk, ready, connecting, provider, account, chainId } = useSDK();
+  const request = provider?.request as RequestFn | undefined;
 
-  // App-specific transfer state.
   const [selected, setSelected] = useState<Network | null>(null);
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
@@ -123,7 +135,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }
     setError(null);
     try {
-      // Opens the MetaMask modal: extension if installed, else a QR for mobile.
       await sdk.connect();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Connection failed');
@@ -134,21 +145,14 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     async (n: Network) => {
       setSelected(n);
       setError(null);
-      if (!provider) return;
+      if (!request) return;
       try {
-        await provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: n.chainId }],
-        });
+        await request({ method: 'wallet_switchEthereumChain', params: [{ chainId: n.chainId }] });
       } catch (e) {
-        // 4902 = chain not added yet → try to add it.
         const code = (e as { code?: number }).code;
         if (code === 4902 && n.add) {
           try {
-            await provider.request({
-              method: 'wallet_addEthereumChain',
-              params: [{ chainId: n.chainId, ...n.add }],
-            });
+            await request({ method: 'wallet_addEthereumChain', params: [{ chainId: n.chainId, ...n.add }] });
           } catch (e2) {
             setError(e2 instanceof Error ? e2.message : 'Could not add network');
           }
@@ -156,13 +160,31 @@ export function Web3Provider({ children }: { children: ReactNode }) {
           setError(e instanceof Error ? e.message : 'Could not switch network');
         }
       }
+      // For a token coin, register it in the user's wallet so the balance shows.
+      if (n.token) {
+        try {
+          await request({
+            method: 'wallet_watchAsset',
+            params: {
+              type: 'ERC20',
+              options: { address: n.token.address, symbol: n.coin, decimals: n.token.decimals },
+            },
+          });
+        } catch {
+          // User may decline adding the asset — not fatal for sending.
+        }
+      }
     },
-    [provider],
+    [request],
   );
 
   const send = useCallback(async () => {
-    if (!provider || !account) {
+    if (!request || !account) {
       setError('Connect your wallet first.');
+      return;
+    }
+    if (!selected) {
+      setError('Choose a coin and chain first.');
       return;
     }
     if (!recipient || !amount) {
@@ -173,21 +195,19 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     setError(null);
     setTxHash(null);
     try {
-      const hash = (await provider.request({
-        method: 'eth_sendTransaction',
-        params: [{ from: account, to: recipient, value: toWeiHex(amount) }],
-      })) as string;
+      const tx = buildTxParams(selected, account, recipient, amount);
+      const hash = (await request({ method: 'eth_sendTransaction', params: [tx] })) as string;
       setTxHash(hash);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Transaction rejected');
     } finally {
       setBusy(false);
     }
-  }, [provider, account, recipient, amount]);
+  }, [request, account, selected, recipient, amount]);
 
   const value = useMemo<Web3Value>(
     () => ({
-      hasMetaMask: ready, // SDK ready → connecting is possible (extension or QR)
+      hasMetaMask: ready,
       account: account ?? null,
       chainId: chainId ?? null,
       selected,

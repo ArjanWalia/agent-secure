@@ -102,8 +102,9 @@ export function TrySelect({ onComplete, onBack }: VisualProps) {
         </div>
         {selected && (
           <p className="try-ok fade-in">
-            Selected {selected.coin} on {selected.label}
+            Selected {selected.label}
             {chainId === selected.chainId ? ' ✅' : ' (switching…)'}
+            {selected.token ? ' · USDC added to your wallet' : ''}
           </p>
         )}
         {error && <p className="error">{error}</p>}
