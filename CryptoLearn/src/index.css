@@ -737,6 +737,125 @@ a:hover {
   font-weight: 700;
   color: var(--purple-strong);
 }
+
+/* Lesson 4 — smart contracts */
+.diagram--contract {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 200px;
+  padding: 18px;
+}
+.contract-io {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.io-emoji {
+  font-size: 40px;
+}
+.io-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+.io-arrow {
+  font-size: 26px;
+  color: var(--muted);
+}
+.contract-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 2px solid var(--purple);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 34px;
+  box-shadow: var(--shadow-md);
+}
+.contract-box code {
+  font-size: 13px;
+  color: var(--ink);
+  text-align: left;
+  line-height: 1.4;
+}
+.diagram--deploy {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+}
+.deploy-code {
+  font-size: 22px;
+  background: #fff;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 24px 30px;
+}
+.deploy-result {
+  text-align: center;
+}
+.deploy-addr {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--purple-strong);
+}
+.deploy-nodes {
+  display: flex;
+  gap: 14px;
+  font-size: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.diagram--usecases {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  height: auto;
+  min-height: 180px;
+  padding: 18px;
+  justify-content: center;
+}
+.usecase-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.chip {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform var(--ease),
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+.chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--purple);
+}
+.chip--active {
+  border-color: transparent;
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.usecase-text {
+  font-size: 17px;
+  max-width: 46ch;
+  margin: 0;
+}
 .tag {
   display: inline-block;
   font-size: 11px;

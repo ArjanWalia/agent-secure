@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import { Lesson1Blockchain } from './Lesson1Blockchain';
 import { Lesson2Nodes } from './Lesson2Nodes';
 import { Lesson3Ethereum } from './Lesson3Ethereum';
+import { Lesson4Contracts } from './Lesson4Contracts';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -19,4 +20,5 @@ export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   'lesson1-blockchain': Lesson1Blockchain,
   'lesson2-nodes': Lesson2Nodes,
   'lesson3-ethereum': Lesson3Ethereum,
+  'lesson4-contracts': Lesson4Contracts,
 };
