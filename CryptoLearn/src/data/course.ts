@@ -105,7 +105,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Token standards', visualId: 'token-standards' }],
           quiz: 0,
         }),
-        lesson('s2l6', 'Other notable categories (altcoins, meme coins, NFTs)'),
+        lesson('s2l6', 'Other notable categories (altcoins, meme coins, NFTs)', {
+          teach: [{ title: 'Other types of crypto', visualId: 'other-coins' }],
+          quiz: 0,
+        }),
       ],
     },
     {

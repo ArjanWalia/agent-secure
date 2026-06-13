@@ -812,6 +812,67 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 2.6 — other coin categories */
+.diagram--cats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  height: auto;
+  min-height: 220px;
+  padding: 16px;
+  justify-content: center;
+}
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  .cat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.cat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition:
+    transform var(--ease),
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+.cat-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--purple);
+  box-shadow: var(--shadow-md);
+}
+.cat-card--active {
+  border-color: transparent;
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.cat-emoji {
+  font-size: 28px;
+}
+.cat-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.cat-desc {
+  font-size: 16px;
+  max-width: 48ch;
+  margin: 0;
+  text-align: center;
+}
+
 /* Lesson 2.5 — token standards / ERC-20 */
 .diagram--rules {
   height: 280px;
