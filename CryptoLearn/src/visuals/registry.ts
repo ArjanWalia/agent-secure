@@ -3,6 +3,7 @@ import { Lesson1Blockchain } from './Lesson1Blockchain';
 import { Lesson2Nodes } from './Lesson2Nodes';
 import { Lesson3Ethereum } from './Lesson3Ethereum';
 import { Lesson4Contracts } from './Lesson4Contracts';
+import { Lesson5Development } from './Lesson5Development';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -21,4 +22,5 @@ export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   'lesson2-nodes': Lesson2Nodes,
   'lesson3-ethereum': Lesson3Ethereum,
   'lesson4-contracts': Lesson4Contracts,
+  'lesson5-development': Lesson5Development,
 };

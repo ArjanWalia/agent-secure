@@ -73,7 +73,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Smart contracts', visualId: 'lesson4-contracts' }],
           quiz: 0,
         }),
-        lesson('s1l5', 'Automation with smart contracts (how contracts execute automatically)'),
+        lesson('s1l5', 'Ethereum development — tokens & the flow of value', {
+          teach: [{ title: 'Ethereum development', visualId: 'lesson5-development' }],
+          quiz: 0,
+        }),
       ],
     },
     {
