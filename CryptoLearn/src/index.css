@@ -812,6 +812,86 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 3.4 — full wallet architecture A↔B */
+.diagram--arch {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  height: auto;
+  min-height: 200px;
+  padding: 16px;
+}
+.arch-wallet {
+  flex: 1 1 0;
+  max-width: 220px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+.arch-wallet--hl {
+  border-color: var(--aqua);
+  box-shadow: 0 0 0 3px rgba(20, 196, 196, 0.18);
+}
+.arch-name {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.arch-row {
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--bg-soft);
+  transition:
+    background var(--ease),
+    transform var(--ease);
+}
+.arch-row code {
+  font-size: 12px;
+}
+.arch-row--hl {
+  background: var(--yellow-soft);
+  border: 1px solid var(--yellow);
+  transform: scale(1.03);
+  font-weight: 700;
+}
+.arch-track {
+  position: relative;
+  flex: 0 0 70px;
+  align-self: center;
+  height: 40px;
+}
+.arch-money {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 26px;
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.arch-caption {
+  font-size: 16px;
+  max-width: 52ch;
+  margin: 4px auto 0;
+  text-align: center;
+}
+@media (max-width: 560px) {
+  .arch-track {
+    flex-basis: 40px;
+  }
+  .arch-row code {
+    display: none;
+  }
+}
+
 /* Lesson 3.3 — private keys & seed phrases */
 .diagram--sign {
   display: flex;

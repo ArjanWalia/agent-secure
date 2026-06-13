@@ -129,7 +129,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Private keys & seed phrases', visualId: 'private-keys' }],
           quiz: 0,
         }),
-        lesson('s3l4', 'How a wallet derives keys & addresses (key generation, simplified)'),
+        lesson('s3l4', 'How a wallet derives keys & addresses (key generation, simplified)', {
+          teach: [{ title: 'Wallet architecture', visualId: 'wallet-architecture' }],
+          quiz: 0,
+        }),
         lesson('s3l5', 'How wallets connect to the blockchain (nodes, RPC, reading vs. signing)'),
       ],
     },
