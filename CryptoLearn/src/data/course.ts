@@ -149,8 +149,11 @@ export const COURSE: Course = {
           teach: [{ title: 'The full flow of a transaction', visualId: 'tx-flow' }],
           quiz: 0,
         }),
-        lesson('s4l2', 'Signing a transaction (the private key proves authorization)'),
-        lesson('s4l3', 'Gas & gas fees (base fee + priority fee)'),
+        lesson('s4l2', 'Gas & gas fees (base fee + priority fee)', {
+          teach: [{ title: 'Gas fees', visualId: 'gas-fees' }],
+          quiz: 0,
+        }),
+        lesson('s4l3', 'Signing a transaction (the private key proves authorization)'),
         lesson('s4l4', 'How transactions move through smart contracts (calls, EVM execution)'),
         lesson('s4l5', 'The mempool (the waiting room before inclusion)'),
         lesson('s4l6', 'Block inclusion & confirmations'),

@@ -812,6 +812,97 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 4.2 — gas fees */
+.diagram--gas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  min-height: 220px;
+  padding: 16px;
+}
+.gas-tx {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-weight: 600;
+}
+.gas-breakdown {
+  background: #fff;
+  border: 2px solid var(--purple);
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-md);
+}
+.gas-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+}
+.gas-row span {
+  font-weight: 700;
+}
+.gas-row--total {
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+  font-size: 16px;
+  color: var(--purple-strong);
+}
+.gas-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--border);
+  margin: 4px 0;
+}
+.gas-bar-base {
+  background: #ff9f43;
+}
+.gas-bar-tip {
+  background: var(--grad);
+  height: 100%;
+  transition: width 0.2s ease;
+}
+.diagram--congest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 220px;
+  padding: 16px;
+}
+.congest-queue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 360px;
+}
+.congest-contract {
+  font-size: 40px;
+  margin-left: 6px;
+}
+.congest-meter {
+  width: 300px;
+  max-width: 80vw;
+}
+.congest-price {
+  font-weight: 700;
+  margin-top: 6px;
+  text-align: center;
+}
+
 /* Lesson 4.1 — full transaction flow */
 .diagram--txflow {
   height: 300px;
