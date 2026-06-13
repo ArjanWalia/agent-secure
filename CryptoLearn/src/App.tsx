@@ -1,8 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Login } from './pages/Login';
+import { Landing } from './pages/Landing';
 import { Signup } from './pages/Signup';
+import { Courses } from './pages/Courses';
 import { Dashboard } from './pages/Dashboard';
 import { Lesson } from './pages/Lesson';
 
@@ -12,10 +13,21 @@ export default function App() {
       <Navbar />
       <main>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          {/* Public: landing page with login */}
+          <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
+
+          {/* Protected: after login → courses → open the course → lessons */}
           <Route
-            path="/"
+            path="/courses"
+            element={
+              <ProtectedRoute>
+                <Courses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/course"
             element={
               <ProtectedRoute>
                 <Dashboard />

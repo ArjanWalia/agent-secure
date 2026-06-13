@@ -34,7 +34,7 @@ export function Lesson() {
     return (
       <div className="container">
         <p>Lesson not found.</p>
-        <button className="btn" onClick={() => navigate('/')}>
+        <button className="btn" onClick={() => navigate('/course')}>
           Back to course
         </button>
       </div>
@@ -71,7 +71,7 @@ export function Lesson() {
 
   return (
     <div className="container">
-      <button className="btn btn--ghost btn--sm back" onClick={() => navigate('/')}>
+      <button className="btn btn--ghost btn--sm back" onClick={() => navigate('/course')}>
         ← Back to course
       </button>
 

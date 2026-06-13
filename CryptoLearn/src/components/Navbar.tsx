@@ -5,7 +5,7 @@ export function Navbar() {
   const { user, signOut } = useAuth();
   return (
     <nav className="navbar">
-      <Link to="/" className="brand">
+      <Link to={user ? '/courses' : '/'} className="brand">
         CryptoLearn
       </Link>
       {user && (
