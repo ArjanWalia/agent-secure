@@ -22,10 +22,10 @@ text) is intentionally **empty** for now — only the structure exists.
 3. **Wallet Architecture** (5 lessons)
 4. **Transactions** (7 lessons)
 
-Each lesson is a sequence of **teach page → question** pairs followed by an
-**end-of-lesson quiz** (5–10 questions). Lesson 1 is mapped out in detail; the
-rest use a placeholder structure (3 teach pages + a 5-question quiz) until their
-sub-topics are authored. All teaching/question text is empty for now.
+Each lesson is at most one teach page (which may host an interactive visual
+scene) followed by an optional **end-of-lesson quiz**. Lesson 1 is a single
+big interactive page (see `src/visuals/Lesson1Blockchain.tsx`); the rest use a
+placeholder teach page + 5-question quiz until authored.
 
 ## Setup
 

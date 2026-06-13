@@ -60,5 +60,9 @@ export function useProgress() {
       if (!uid) return;
       setSnap(await P.resetCourse(uid, snap));
     },
+    completeLesson: async (s: string, l: string) => {
+      if (!uid) return;
+      setSnap(await P.completeLesson(uid, snap, s, l));
+    },
   };
 }

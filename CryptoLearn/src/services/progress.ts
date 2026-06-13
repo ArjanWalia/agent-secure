@@ -253,6 +253,39 @@ export function resetCourse(userId: string, snap: ProgressSnapshot) {
   return resetQuestions(userId, snap, flattenQuestions());
 }
 
+// Mark every question in a lesson complete (used by full-lesson interactive
+// scenes that finish in one page), then recompute & persist rollups.
+export async function completeLesson(
+  userId: string,
+  snap: ProgressSnapshot,
+  sectionId: string,
+  lessonId: string,
+): Promise<ProgressSnapshot> {
+  const lesson = COURSE.sections
+    .find((s) => s.id === sectionId)
+    ?.lessons.find((l) => l.id === lessonId);
+  const numbers = lesson ? lessonQuestionNumbers(lesson) : [];
+  const next: ProgressSnapshot = { completedQuestions: new Set(snap.completedQuestions) };
+  numbers.forEach((n) => next.completedQuestions.add(qKey(sectionId, lessonId, n)));
+
+  const rows = numbers.map((n) => ({
+    user_id: userId,
+    course_id: courseId,
+    section_id: sectionId,
+    lesson_id: lessonId,
+    question_number: n,
+    completed: true,
+    updated_at: new Date().toISOString(),
+  }));
+  if (rows.length) {
+    await supabase
+      .from('question_progress')
+      .upsert(rows, { onConflict: 'user_id,section_id,lesson_id,question_number' });
+  }
+  await persistRollups(userId, next);
+  return next;
+}
+
 // ---- Resume ----
 // First question (in course order) that is NOT complete. null => all done.
 export function resumeTarget(snap: ProgressSnapshot) {

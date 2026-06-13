@@ -434,6 +434,135 @@ a:hover {
   margin-top: 18px;
 }
 
+/* Full-page lesson scene */
+.scene--full {
+  min-height: 60vh;
+  cursor: pointer;
+}
+.scene-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+.scene-heading {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.scene-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  cursor: default;
+}
+.scene-controls input[type='range'] {
+  width: 260px;
+  max-width: 60vw;
+  accent-color: var(--purple);
+  cursor: pointer;
+}
+.scene-progress {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  margin-top: 16px;
+  cursor: default;
+}
+.scene-nav__end {
+  display: flex;
+  gap: 10px;
+}
+
+/* Emoji diagrams */
+.diagram {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.diagram-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.diagram-emoji {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 34px;
+  transition:
+    opacity 0.25s ease,
+    left 0.05s linear,
+    top 0.05s linear;
+  user-select: none;
+}
+.blocks-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  height: 100%;
+  font-size: 40px;
+}
+.blocks-row--top {
+  height: auto;
+  position: absolute;
+  top: 14px;
+  left: 0;
+  right: 0;
+  font-size: 30px;
+}
+.block-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.block-link {
+  font-size: 0.6em;
+}
+.diagram--ledgers {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: flex-start;
+  height: auto;
+  min-height: 200px;
+  padding: 16px;
+  flex-wrap: wrap;
+}
+.ledger {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-width: 130px;
+  box-shadow: var(--shadow-sm);
+}
+.ledger-head {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+.ledger-row {
+  font-size: 15px;
+  padding: 3px 0;
+  border-top: 1px dashed var(--border);
+}
+
 /* Fade-in animation for revealed text / emojis */
 @keyframes fadeIn {
   from {

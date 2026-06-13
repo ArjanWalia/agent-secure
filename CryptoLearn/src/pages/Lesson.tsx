@@ -94,6 +94,30 @@ export function Lesson() {
     setCursor(0);
   }
 
+  // Flat, ordered list of lessons for Continue / Back navigation.
+  const lessonsFlat = COURSE.sections.flatMap((s) =>
+    s.lessons.map((l) => ({ sectionId: s.id, lessonId: l.id })),
+  );
+  const myIndex = lessonsFlat.findIndex(
+    (x) => x.sectionId === sectionId && x.lessonId === lessonId,
+  );
+  const nextLesson = lessonsFlat[myIndex + 1];
+  const prevLesson = lessonsFlat[myIndex - 1];
+
+  function goLesson(target?: { sectionId: string; lessonId: string }) {
+    if (target) navigate(`/lesson/${target.sectionId}/${target.lessonId}?q=1`);
+    else navigate('/course');
+  }
+  // "Continue": finish this lesson and open the next one.
+  async function completeAndContinue() {
+    await p.completeLesson(sectionId, lessonId);
+    goLesson(nextLesson);
+  }
+  // "Back": go to the previous lesson (or the course page if there is none).
+  function goBackLesson() {
+    goLesson(prevLesson);
+  }
+
   // Header subtitle for the current screen.
   function subtitle(): string {
     if (current.type === 'teach') return `Teaching ${current.pairIndex + 1} of ${pairCount}`;
@@ -134,8 +158,12 @@ export function Lesson() {
               <span className="tag">Lesson</span>
               <h2 className="teach-title">{teach.title || `Topic ${current.pairIndex + 1}`}</h2>
               {Visual ? (
-                // Interactive scene owns its own Next/Previous + "continue" flow.
-                <Visual onAdvance={advance} />
+                // Interactive scene owns its own navigation + lesson Continue/Back.
+                <Visual
+                  onAdvance={advance}
+                  onComplete={() => void completeAndContinue()}
+                  onBack={goBackLesson}
+                />
               ) : (
                 <>
                   <div className="placeholder placeholder--teach">

@@ -29,8 +29,8 @@ function lesson(
   title: string,
   opts: { teach?: TeachSpec[]; quiz?: number } = {},
 ): Lesson {
-  // Default for not-yet-mapped lessons: 3 placeholder teach pages + 5 quiz Qs.
-  const teachSpecs = opts.teach ?? ['', '', ''];
+  // Default for not-yet-mapped lessons: 1 placeholder teach page + 5 quiz Qs.
+  const teachSpecs = opts.teach ?? [''];
   const quizCount = opts.quiz ?? 5;
   return {
     id,
@@ -56,16 +56,10 @@ export const COURSE: Course = {
       description:
         'Understand the machine before using it — what a blockchain is, how Ethereum is built, and how smart contracts make it programmable.',
       lessons: [
-        // Lesson 1 — structure mapped out in detail.
+        // Lesson 1 — one big interactive page covering the whole topic.
         lesson('s1l1', 'What is a blockchain?', {
-          teach: [
-            { title: 'How transactions used to happen', visualId: 'tx-before-blockchain' },
-            'The blockchain solution',
-            'Blocks and chains',
-            'The ledger',
-            'Full blockchain architecture (block + chain + ledger)',
-          ],
-          quiz: 5,
+          teach: [{ title: 'What is a blockchain?', visualId: 'lesson1-blockchain' }],
+          quiz: 0,
         }),
         lesson('s1l2', 'Decentralization & consensus (nodes, validators, proof-of-stake)'),
         lesson('s1l3', "Ethereum's architecture (the EVM, accounts, world state)"),
