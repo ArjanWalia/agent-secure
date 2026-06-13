@@ -33,6 +33,8 @@ export function useProgress() {
     isLessonComplete: (s: string, l: string) => P.isLessonComplete(snap, s, l),
     isSectionComplete: (s: string) => P.isSectionComplete(snap, s),
     isCourseComplete: () => P.isCourseComplete(snap),
+    // Has the user completed at least one question? (false => show "Start")
+    hasStarted: () => snap.completedQuestions.size > 0,
     isQuestionComplete: (s: string, l: string, n: number) =>
       snap.completedQuestions.has(P.qKey(s, l, n)),
     resumeTarget: () => P.resumeTarget(snap),

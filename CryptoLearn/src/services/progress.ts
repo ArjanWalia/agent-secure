@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { COURSE, flattenQuestions } from '../data/course';
+import { COURSE, flattenQuestions, lessonQuestionNumbers } from '../data/course';
 import type { Course } from '../types';
 
 // ============================================================================
@@ -35,10 +35,10 @@ export function isLessonComplete(
 ): boolean {
   const section = course.sections.find((s) => s.id === sectionId);
   const lesson = section?.lessons.find((l) => l.id === lessonId);
-  if (!lesson || lesson.questions.length === 0) return false;
-  return lesson.questions.every((q) =>
-    snap.completedQuestions.has(qKey(sectionId, lessonId, q.number)),
-  );
+  if (!lesson) return false;
+  const numbers = lessonQuestionNumbers(lesson);
+  if (numbers.length === 0) return false;
+  return numbers.every((n) => snap.completedQuestions.has(qKey(sectionId, lessonId, n)));
 }
 
 export function isSectionComplete(
@@ -234,11 +234,9 @@ export function resetLesson(
   const lesson = COURSE.sections
     .find((s) => s.id === sectionId)
     ?.lessons.find((l) => l.id === lessonId);
-  const targets = (lesson?.questions ?? []).map((q) => ({
-    sectionId,
-    lessonId,
-    questionNumber: q.number,
-  }));
+  const targets = lesson
+    ? lessonQuestionNumbers(lesson).map((n) => ({ sectionId, lessonId, questionNumber: n }))
+    : [];
   return resetQuestions(userId, snap, targets);
 }
 
@@ -246,7 +244,7 @@ export function resetSection(userId: string, snap: ProgressSnapshot, sectionId: 
   const section = COURSE.sections.find((s) => s.id === sectionId);
   const targets =
     section?.lessons.flatMap((l) =>
-      l.questions.map((q) => ({ sectionId, lessonId: l.id, questionNumber: q.number })),
+      lessonQuestionNumbers(l).map((n) => ({ sectionId, lessonId: l.id, questionNumber: n })),
     ) ?? [];
   return resetQuestions(userId, snap, targets);
 }

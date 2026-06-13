@@ -1,10 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { COURSE } from '../data/course';
+import { COURSE, lessonQuestionNumbers } from '../data/course';
 import { useProgress } from '../hooks/useProgress';
 import { Checkmark } from '../components/Checkmark';
 
-type Phase = 'visual' | 'question';
+// A lesson plays as an ordered list of screens:
+//   teach(1) → question(1) → teach(2) → question(2) → … → quizIntro → quiz Qs
+// Pair questions are numbered 1..P; quiz questions P+1..P+Q.
+type Screen =
+  | { type: 'teach'; pairIndex: number; qn: number }
+  | { type: 'question'; qn: number; quiz: boolean }
+  | { type: 'quizIntro' };
 
 export function Lesson() {
   const { sectionId = '', lessonId = '' } = useParams();
@@ -15,20 +21,44 @@ export function Lesson() {
   const section = COURSE.sections.find((s) => s.id === sectionId);
   const lesson = section?.lessons.find((l) => l.id === lessonId);
 
-  // Starting question index: from ?q=, else first incomplete, else 0.
-  const startIndex = useMemo(() => {
-    if (!lesson) return 0;
-    const q = Number(params.get('q'));
-    if (q && q >= 1 && q <= lesson.questions.length) return q - 1;
-    const firstIncomplete = lesson.questions.findIndex(
-      (qq) => !p.isQuestionComplete(sectionId, lessonId, qq.number),
-    );
-    return firstIncomplete === -1 ? 0 : firstIncomplete;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lesson, p.loading]);
+  // Build the ordered screen list for this lesson.
+  const screens: Screen[] = useMemo(() => {
+    if (!lesson) return [];
+    const out: Screen[] = [];
+    lesson.pairs.forEach((_, i) => {
+      out.push({ type: 'teach', pairIndex: i, qn: i + 1 });
+      out.push({ type: 'question', qn: i + 1, quiz: false });
+    });
+    if (lesson.quiz.length > 0) {
+      out.push({ type: 'quizIntro' });
+      lesson.quiz.forEach((_, j) => {
+        out.push({ type: 'question', qn: lesson.pairs.length + j + 1, quiz: true });
+      });
+    }
+    return out;
+  }, [lesson]);
 
-  const [index, setIndex] = useState(startIndex);
-  const [phase, setPhase] = useState<Phase>('visual');
+  // Where to start: ?q= overrides; else first incomplete question; else the top.
+  // For a pair question we begin at its TEACH page (restart teaches first).
+  const startCursor = useMemo(() => {
+    if (!lesson || screens.length === 0) return 0;
+    const pairCount = lesson.pairs.length;
+    const numbers = lessonQuestionNumbers(lesson);
+    const requested = Number(params.get('q'));
+    const targetQn =
+      requested && numbers.includes(requested)
+        ? requested
+        : (numbers.find((n) => !p.isQuestionComplete(sectionId, lessonId, n)) ?? 1);
+
+    const idx =
+      targetQn <= pairCount
+        ? screens.findIndex((s) => s.type === 'teach' && s.qn === targetQn)
+        : screens.findIndex((s) => s.type === 'question' && s.quiz && s.qn === targetQn);
+    return idx === -1 ? 0 : idx;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson, screens, p.loading]);
+
+  const [cursor, setCursor] = useState(startCursor);
 
   if (!section || !lesson) {
     return (
@@ -40,34 +70,39 @@ export function Lesson() {
       </div>
     );
   }
-
   if (p.loading) return <div className="centered">Loading…</div>;
 
-  const total = lesson.questions.length;
-  const question = lesson.questions[index];
+  const pairCount = lesson.pairs.length;
+  const numbers = lessonQuestionNumbers(lesson);
   const lessonDone = p.isLessonComplete(sectionId, lessonId);
+  const current = screens[Math.min(cursor, screens.length - 1)];
+  const atEnd = cursor >= screens.length - 1;
 
-  // User answered correctly → mark complete, advance to next question's visual.
-  async function onCorrect() {
-    await p.completeQuestion(sectionId, lessonId, question.number);
-    if (index + 1 < total) {
-      setIndex(index + 1);
-      setPhase('visual');
-    } else {
-      setPhase('question'); // stay; the "lesson complete" banner will show
-    }
+  function advance() {
+    setCursor((c) => Math.min(c + 1, screens.length - 1));
   }
 
-  // Retry → in future this regenerates a new question. For now, replay this one.
-  function onRetry() {
-    setPhase('visual');
+  // Correct answer → mark the question complete, then move on.
+  async function onCorrect(qn: number) {
+    await p.completeQuestion(sectionId, lessonId, qn);
+    advance();
   }
 
   async function redoLesson() {
     await p.resetLesson(sectionId, lessonId);
-    setIndex(0);
-    setPhase('visual');
+    setCursor(0);
   }
+
+  // Header subtitle for the current screen.
+  function subtitle(): string {
+    if (current.type === 'teach') return `Teaching ${current.pairIndex + 1} of ${pairCount}`;
+    if (current.type === 'quizIntro') return 'End-of-lesson quiz';
+    if (current.quiz) return `Quiz · Question ${current.qn - pairCount} of ${lesson!.quiz.length}`;
+    return `Question ${current.qn} of ${pairCount}`;
+  }
+
+  const currentQn =
+    current.type === 'teach' || current.type === 'question' ? current.qn : undefined;
 
   return (
     <div className="container">
@@ -79,48 +114,67 @@ export function Lesson() {
         <h1>
           <Checkmark complete={lessonDone} /> {lesson.title}
         </h1>
-        <p className="muted">
-          Question {index + 1} of {total} · {phase === 'visual' ? 'Visual' : 'Try it yourself'}
-        </p>
+        <p className="muted">{subtitle()}</p>
       </header>
 
-      {lessonDone && index + 1 >= total && (
+      {lessonDone && (
         <div className="banner banner--done">
           ✓ Lesson complete! You can redo it or head back to the course.
         </div>
       )}
 
-      {/* Page 1 of the pair: the visual representation (precedes the question). */}
-      {phase === 'visual' && (
+      {/* TEACH PAGE — teaches a sub-topic; precedes its question. */}
+      {current.type === 'teach' && (
         <div className="card lesson-panel">
-          <span className="tag">Visual representation</span>
-          <div className="placeholder placeholder--visual">
-            {/* Material intentionally empty for now. */}
-            Visual for question {question.number} — coming soon
+          <span className="tag">Lesson</span>
+          <h2 className="teach-title">
+            {lesson.pairs[current.pairIndex].teach.title || `Topic ${current.pairIndex + 1}`}
+          </h2>
+          <div className="placeholder placeholder--teach">
+            {/* Teaching material intentionally empty for now. */}
+            Teaching content — coming soon
           </div>
           <div className="panel-actions">
-            <button className="btn btn--primary" onClick={() => setPhase('question')}>
+            <button className="btn btn--primary" onClick={advance}>
               Continue to question →
             </button>
           </div>
         </div>
       )}
 
-      {/* Page 2 of the pair: the try-it-yourself question. */}
-      {phase === 'question' && (
+      {/* QUIZ INTRO — shown once before the quiz questions begin. */}
+      {current.type === 'quizIntro' && (
         <div className="card lesson-panel">
-          <span className="tag">Try it yourself</span>
+          <span className="tag">Quiz</span>
+          <h2 className="teach-title">Check your understanding</h2>
+          <div className="placeholder placeholder--teach">
+            {lesson.quiz.length} questions covering this lesson.
+          </div>
+          <div className="panel-actions">
+            <button className="btn btn--primary" onClick={advance}>
+              Start quiz →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* QUESTION PAGE — pair question or quiz question. */}
+      {current.type === 'question' && (
+        <div className="card lesson-panel">
+          <span className="tag">{current.quiz ? 'Quiz' : 'Try it yourself'}</span>
           <div className="placeholder placeholder--question">
-            {/* Material intentionally empty for now. */}
-            Question {question.number} — coming soon
+            {/* Question material intentionally empty for now. */}
+            {current.quiz
+              ? `Quiz question ${current.qn - pairCount} — coming soon`
+              : `Question ${current.qn} — coming soon`}
           </div>
           <div className="panel-actions">
             {/* Placeholder for real answer-checking. */}
-            <button className="btn btn--primary" onClick={() => void onCorrect()}>
-              Submit (correct) →
+            <button className="btn btn--primary" onClick={() => void onCorrect(current.qn)}>
+              {atEnd ? 'Submit (correct) ✓' : 'Submit (correct) →'}
             </button>
-            <button className="btn btn--ghost" onClick={onRetry}>
-              Retry with a new question
+            <button className="btn btn--ghost" onClick={() => setCursor((c) => Math.max(0, c - 1))}>
+              Back
             </button>
           </div>
         </div>
@@ -128,13 +182,13 @@ export function Lesson() {
 
       <footer className="lesson-foot">
         <span className="q-dots">
-          {lesson.questions.map((q, i) => (
+          {numbers.map((n) => (
             <span
-              key={q.number}
+              key={n}
               className={
-                p.isQuestionComplete(sectionId, lessonId, q.number)
+                p.isQuestionComplete(sectionId, lessonId, n)
                   ? 'q-dot q-dot--done'
-                  : i === index
+                  : n === currentQn
                     ? 'q-dot q-dot--current'
                     : 'q-dot'
               }

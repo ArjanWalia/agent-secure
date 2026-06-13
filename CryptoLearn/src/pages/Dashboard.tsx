@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { COURSE } from '../data/course';
+import { COURSE, lessonQuestionNumbers } from '../data/course';
 import { useProgress } from '../hooks/useProgress';
 import { Checkmark } from '../components/Checkmark';
 
@@ -11,6 +11,7 @@ export function Dashboard() {
 
   const resume = p.resumeTarget();
   const courseDone = p.isCourseComplete();
+  const started = p.hasStarted();
 
   function goToResume() {
     if (!resume) return;
@@ -26,7 +27,7 @@ export function Dashboard() {
             <span className="badge badge--done">✓ Course complete</span>
           ) : (
             <button className="btn btn--primary btn--resume" onClick={goToResume}>
-              ▶ Resume
+              {started ? '▶ Resume' : '▶ Start'}
             </button>
           )}
           <button className="btn btn--ghost" onClick={() => void p.resetCourse()}>
@@ -65,12 +66,12 @@ export function Dashboard() {
                     <span className="lesson-title">{lesson.title}</span>
                   </button>
                   <span className="q-dots">
-                    {lesson.questions.map((q) => (
+                    {lessonQuestionNumbers(lesson).map((n) => (
                       <span
-                        key={q.number}
-                        title={`Question ${q.number}`}
+                        key={n}
+                        title={`Question ${n}`}
                         className={
-                          p.isQuestionComplete(section.id, lesson.id, q.number)
+                          p.isQuestionComplete(section.id, lesson.id, n)
                             ? 'q-dot q-dot--done'
                             : 'q-dot'
                         }

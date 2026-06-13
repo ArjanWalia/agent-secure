@@ -1,19 +1,30 @@
 // Shared domain types for CryptoLearn.
 
-// A single practice question inside a lesson. Content is intentionally empty
-// for now — only the structure exists. `prompt`, `visual`, etc. get filled in
-// later when course material is written.
+// A teaching page — explains one sub-topic of a lesson. `content` is empty for
+// now (material is authored later); `title` is the sub-topic name.
+export interface TeachPage {
+  title: string;
+  content: string;
+}
+
+// A question (used both for the per-teach-page question and for quiz questions).
+// `prompt`/`visual` are empty for now — only the structure exists.
 export interface Question {
-  number: number; // 1-based within the lesson
-  prompt: string; // empty for now
-  visual: string; // description/placeholder for the visual representation
+  prompt: string;
+  visual: string;
+}
+
+// A lesson is a sequence of (teach page → question) PAIRS, followed by a quiz.
+export interface LessonPair {
+  teach: TeachPage;
+  question: Question;
 }
 
 export interface Lesson {
   id: string;
   title: string;
-  content: string; // lesson body — empty for now
-  questions: Question[];
+  pairs: LessonPair[]; // teach→question pairs, in order
+  quiz: Question[]; // end-of-lesson quiz (5–10 questions)
 }
 
 export interface Section {

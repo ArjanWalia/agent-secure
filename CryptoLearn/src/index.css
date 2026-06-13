@@ -371,6 +371,11 @@ a:hover {
 .lesson-panel {
   margin: 16px 0;
 }
+.teach-title {
+  margin: 0 0 14px;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
 .tag {
   display: inline-block;
   font-size: 11px;

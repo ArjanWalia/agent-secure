@@ -1,32 +1,42 @@
-import type { Course, Question } from '../types';
+import type { Course, Lesson, Question } from '../types';
 
 // ============================================================================
 // Single source of truth for the course STRUCTURE.
 //
+// A lesson = an ordered list of (teach page → question) PAIRS, then a QUIZ.
 // All teaching material is intentionally EMPTY for now:
-//   - lesson.content   = ''      (no lesson body yet)
-//   - question.prompt  = ''      (no question text yet)
-//   - question.visual  = ''      (no visual yet)
+//   - teach.content  = ''   (no teaching body yet)
+//   - question.prompt = ''  (no question text yet)
 //
-// Only the section/lesson names and the number of question slots exist. The
-// progress tables and the entire UI/data flow are driven off this object, so
-// when material is written later, nothing else needs to change.
+// Only the section/lesson names, the teach-page sub-topic titles, and the
+// number of quiz questions exist. Progress tracking and the whole UI are driven
+// off this object, so authoring material later requires no other changes.
+//
+// QUESTION NUMBERING (for progress tracking, 1-based within a lesson):
+//   pair questions   → 1 .. pairs.length
+//   quiz questions   → pairs.length+1 .. pairs.length+quiz.length
 // ============================================================================
 
-// How many practice-question slots each lesson has for now. Placeholder only —
-// adjust per lesson when real questions are authored.
-const QUESTIONS_PER_LESSON = 3;
+const emptyQuestion = (): Question => ({ prompt: '', visual: '' });
 
-function emptyQuestions(count: number): Question[] {
-  return Array.from({ length: count }, (_, i) => ({
-    number: i + 1,
-    prompt: '',
-    visual: '',
-  }));
-}
-
-function lesson(id: string, title: string) {
-  return { id, title, content: '', questions: emptyQuestions(QUESTIONS_PER_LESSON) };
+// Build a lesson from a list of teach-page sub-topic titles plus a quiz size.
+function lesson(
+  id: string,
+  title: string,
+  opts: { teach?: string[]; quiz?: number } = {},
+): Lesson {
+  // Default for not-yet-mapped lessons: 3 placeholder teach pages + 5 quiz Qs.
+  const teachTitles = opts.teach ?? ['', '', ''];
+  const quizCount = opts.quiz ?? 5;
+  return {
+    id,
+    title,
+    pairs: teachTitles.map((t) => ({
+      teach: { title: t, content: '' },
+      question: emptyQuestion(),
+    })),
+    quiz: Array.from({ length: quizCount }, emptyQuestion),
+  };
 }
 
 export const COURSE: Course = {
@@ -39,7 +49,17 @@ export const COURSE: Course = {
       description:
         'Understand the machine before using it — what a blockchain is, how Ethereum is built, and how smart contracts make it programmable.',
       lessons: [
-        lesson('s1l1', 'What is a blockchain? (blocks, chains, the distributed ledger)'),
+        // Lesson 1 — structure mapped out in detail.
+        lesson('s1l1', 'What is a blockchain?', {
+          teach: [
+            'How transactions used to happen',
+            'The blockchain solution',
+            'Blocks and chains',
+            'The ledger',
+            'Full blockchain architecture (block + chain + ledger)',
+          ],
+          quiz: 5,
+        }),
         lesson('s1l2', 'Decentralization & consensus (nodes, validators, proof-of-stake)'),
         lesson('s1l3', "Ethereum's architecture (the EVM, accounts, world state)"),
         lesson('s1l4', 'Smart contracts — code that lives on-chain'),
@@ -91,8 +111,19 @@ export const COURSE: Course = {
   ],
 };
 
-// Convenience: flat, ordered list of every question slot in the course.
-// Used by resume logic and progress initialization.
+// ---- Structure helpers ----
+
+// Total answerable questions in a lesson (pair questions + quiz questions).
+export function lessonQuestionCount(l: Lesson): number {
+  return l.pairs.length + l.quiz.length;
+}
+
+// 1-based question numbers for a lesson: [1, 2, …, count].
+export function lessonQuestionNumbers(l: Lesson): number[] {
+  return Array.from({ length: lessonQuestionCount(l) }, (_, i) => i + 1);
+}
+
+// Convenience: flat, ordered list of every question in the course.
 export interface FlatQuestion {
   sectionId: string;
   lessonId: string;
@@ -103,8 +134,8 @@ export function flattenQuestions(course: Course = COURSE): FlatQuestion[] {
   const out: FlatQuestion[] = [];
   for (const section of course.sections) {
     for (const l of section.lessons) {
-      for (const q of l.questions) {
-        out.push({ sectionId: section.id, lessonId: l.id, questionNumber: q.number });
+      for (const n of lessonQuestionNumbers(l)) {
+        out.push({ sectionId: section.id, lessonId: l.id, questionNumber: n });
       }
     }
   }
