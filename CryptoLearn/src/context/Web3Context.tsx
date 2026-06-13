@@ -2,14 +2,17 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
+import { useSDK } from '@metamask/sdk-react';
 
 // ---------------------------------------------------------------------------
 // MetaMask integration for the "Try it out yourself!" section.
+//
+// Uses the MetaMask SDK (@metamask/sdk-react) so users can connect with the
+// browser extension OR the MetaMask mobile app via QR / deep link.
 //
 // IMPORTANT: this app NEVER sees a private key. It only asks MetaMask to
 // connect, switch network, and submit a transaction — MetaMask shows its own
@@ -102,11 +105,10 @@ interface Web3Value {
 const Web3Context = createContext<Web3Value | undefined>(undefined);
 
 export function Web3Provider({ children }: { children: ReactNode }) {
-  const eth = typeof window !== 'undefined' ? window.ethereum : undefined;
-  const hasMetaMask = !!eth?.isMetaMask || !!eth;
+  // Connection state comes from the MetaMask SDK.
+  const { sdk, ready, connecting, provider, account, chainId } = useSDK();
 
-  const [account, setAccount] = useState<string | null>(null);
-  const [chainId, setChainId] = useState<string | null>(null);
+  // App-specific transfer state.
   const [selected, setSelected] = useState<Network | null>(null);
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
@@ -114,55 +116,39 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!eth?.on) return;
-    const onAccts = (...a: unknown[]) => setAccount(((a[0] as string[]) ?? [])[0] ?? null);
-    const onChain = (...a: unknown[]) => setChainId((a[0] as string) ?? null);
-    eth.on('accountsChanged', onAccts);
-    eth.on('chainChanged', onChain);
-    return () => {
-      eth.removeListener?.('accountsChanged', onAccts);
-      eth.removeListener?.('chainChanged', onChain);
-    };
-  }, [eth]);
-
   const connect = useCallback(async () => {
-    if (!eth) {
-      setError('MetaMask not found. Install the MetaMask extension to continue.');
+    if (!sdk) {
+      setError('MetaMask SDK is not ready yet — try again in a moment.');
       return;
     }
-    setBusy(true);
     setError(null);
     try {
-      const accts = (await eth.request({ method: 'eth_requestAccounts' })) as string[];
-      setAccount(accts[0] ?? null);
-      const cid = (await eth.request({ method: 'eth_chainId' })) as string;
-      setChainId(cid);
+      // Opens the MetaMask modal: extension if installed, else a QR for mobile.
+      await sdk.connect();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Connection failed');
-    } finally {
-      setBusy(false);
     }
-  }, [eth]);
+  }, [sdk]);
 
   const selectNetwork = useCallback(
     async (n: Network) => {
       setSelected(n);
       setError(null);
-      if (!eth) return;
+      if (!provider) return;
       try {
-        await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: n.chainId }] });
-        setChainId(n.chainId);
+        await provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: n.chainId }],
+        });
       } catch (e) {
         // 4902 = chain not added yet → try to add it.
         const code = (e as { code?: number }).code;
         if (code === 4902 && n.add) {
           try {
-            await eth.request({
+            await provider.request({
               method: 'wallet_addEthereumChain',
               params: [{ chainId: n.chainId, ...n.add }],
             });
-            setChainId(n.chainId);
           } catch (e2) {
             setError(e2 instanceof Error ? e2.message : 'Could not add network');
           }
@@ -171,11 +157,11 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         }
       }
     },
-    [eth],
+    [provider],
   );
 
   const send = useCallback(async () => {
-    if (!eth || !account) {
+    if (!provider || !account) {
       setError('Connect your wallet first.');
       return;
     }
@@ -187,7 +173,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     setError(null);
     setTxHash(null);
     try {
-      const hash = (await eth.request({
+      const hash = (await provider.request({
         method: 'eth_sendTransaction',
         params: [{ from: account, to: recipient, value: toWeiHex(amount) }],
       })) as string;
@@ -197,18 +183,18 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     } finally {
       setBusy(false);
     }
-  }, [eth, account, recipient, amount]);
+  }, [provider, account, recipient, amount]);
 
   const value = useMemo<Web3Value>(
     () => ({
-      hasMetaMask,
-      account,
-      chainId,
+      hasMetaMask: ready, // SDK ready → connecting is possible (extension or QR)
+      account: account ?? null,
+      chainId: chainId ?? null,
       selected,
       recipient,
       amount,
       txHash,
-      busy,
+      busy: busy || connecting,
       error,
       setRecipient,
       setAmount,
@@ -216,7 +202,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       selectNetwork,
       send,
     }),
-    [hasMetaMask, account, chainId, selected, recipient, amount, txHash, busy, error, connect, selectNetwork, send],
+    [ready, account, chainId, selected, recipient, amount, txHash, busy, connecting, error, connect, selectNetwork, send],
   );
 
   return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;

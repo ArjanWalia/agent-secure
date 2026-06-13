@@ -52,24 +52,23 @@ export function TryConnect({ onComplete, onBack }: VisualProps) {
       <h3 className="scene-heading">1 · Connect your wallet</h3>
       <p className="scene-paragraph">
         Time to do it for real. Connect your <strong>existing MetaMask</strong> wallet 🦊 — we use
-        MetaMask Connect, so the app never sees your keys. Click connect and approve in the popup.
+        the MetaMask SDK, so the app never sees your keys. Click connect and approve in the popup (no
+        extension? a QR code appears to pair the MetaMask mobile app).
       </p>
       <div className="diagram diagram--try" onClick={stop}>
-        {!hasMetaMask ? (
-          <div className="try-warn">
-            🦊 MetaMask not detected.{' '}
-            <a href="https://metamask.io/download/" target="_blank" rel="noreferrer">
-              Install MetaMask
-            </a>{' '}
-            and reload.
-          </div>
-        ) : account ? (
+        {account ? (
           <div className="try-ok fade-in">✅ Connected: {shortAddr(account)}</div>
         ) : (
-          <button className="btn btn--primary" onClick={() => void connect()} disabled={busy}>
+          <button className="btn btn--primary" onClick={() => void connect()} disabled={busy || !hasMetaMask}>
             {busy ? 'Connecting…' : 'Connect MetaMask 🦊'}
           </button>
         )}
+        <p className="muted" style={{ fontSize: 13 }}>
+          No wallet yet?{' '}
+          <a href="https://metamask.io/download/" target="_blank" rel="noreferrer">
+            Get MetaMask
+          </a>
+        </p>
         {error && <p className="error">{error}</p>}
       </div>
     </TryShell>
