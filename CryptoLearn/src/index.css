@@ -812,6 +812,89 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
+/* Lesson 3.3 — private keys & seed phrases */
+.diagram--sign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 200px;
+}
+.sign-key {
+  font-size: 48px;
+}
+.sign-tx {
+  background: #fff;
+  border: 2px solid var(--purple);
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 18px;
+  box-shadow: var(--shadow-md);
+}
+.sign-sig {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--aqua-strong);
+}
+.diagram--seed {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+}
+.seed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .seed-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.seed-word {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.seed-num {
+  color: var(--muted);
+  font-size: 12px;
+}
+.seed-hidden {
+  font-size: 18px;
+  color: var(--muted);
+}
+.diagram--vault {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  min-height: 200px;
+}
+.vault-actor {
+  font-size: 40px;
+}
+.vault-lock {
+  font-size: 50px;
+}
+.vault-msg {
+  font-weight: 700;
+  font-size: 16px;
+}
+.vault-msg--ok {
+  color: var(--aqua-strong);
+}
+.vault-msg--bad {
+  color: var(--danger);
+}
+
 /* Lesson 3.2 — addresses & public keys */
 .diagram--send {
   display: flex;
