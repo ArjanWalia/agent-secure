@@ -21,6 +21,7 @@ import { LessonContractExec } from './LessonContractExec';
 import { LessonMempool } from './LessonMempool';
 import { LessonBlockInclusion } from './LessonBlockInclusion';
 import { LessonTxJourney } from './LessonTxJourney';
+import { TryConnect, TrySelect, TryRecipient, TryTransfer } from './LessonTryIt';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -57,4 +58,8 @@ export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   mempool: LessonMempool,
   'block-inclusion': LessonBlockInclusion,
   'tx-journey': LessonTxJourney,
+  'try-connect': TryConnect,
+  'try-select': TrySelect,
+  'try-recipient': TryRecipient,
+  'try-transfer': TryTransfer,
 };

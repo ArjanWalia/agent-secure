@@ -171,6 +171,30 @@ export const COURSE: Course = {
         }),
       ],
     },
+    {
+      id: 's5',
+      title: 'Try It Out Yourself!',
+      description:
+        'Put it into practice with a real MetaMask wallet: connect, choose a coin & chain, enter a recipient, and send a transfer. MetaMask confirms every step.',
+      lessons: [
+        lesson('s5l1', 'Connect your crypto wallet (MetaMask)', {
+          teach: [{ title: 'Connect your wallet', visualId: 'try-connect' }],
+          quiz: 0,
+        }),
+        lesson('s5l2', 'Choose your coin & chain', {
+          teach: [{ title: 'Choose coin & chain', visualId: 'try-select' }],
+          quiz: 0,
+        }),
+        lesson('s5l3', 'Enter the recipient & amount', {
+          teach: [{ title: 'Recipient & amount', visualId: 'try-recipient' }],
+          quiz: 0,
+        }),
+        lesson('s5l4', 'Transfer the funds', {
+          teach: [{ title: 'Transfer', visualId: 'try-transfer' }],
+          quiz: 0,
+        }),
+      ],
+    },
   ],
 };
 
