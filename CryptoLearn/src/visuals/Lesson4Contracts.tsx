@@ -11,19 +11,38 @@ import { useStepper } from './useStepper';
 
 const STEP_COUNT = 3;
 
-const USE_CASES = [
-  { emoji: '💱', label: 'Exchanges', text: 'Swap one token for another automatically — no broker.' },
-  { emoji: '🖼️', label: 'NFTs', text: 'Prove ownership of digital art and collectibles on-chain.' },
-  { emoji: '🏦', label: 'Lending', text: 'Borrow and lend crypto with rules enforced by code.' },
-  { emoji: '🗳️', label: 'Voting', text: 'Run tamper-proof votes that anyone can verify.' },
-  { emoji: '🎮', label: 'Games', text: 'Own in-game items as real, tradable assets.' },
+// §3 "world" diagram: wallets at the endpoints, computers in the middle, links
+// between them, and contracts executing along some of the links.
+const WALLETS = [
+  { x: 8, y: 24 },
+  { x: 8, y: 76 },
+  { x: 92, y: 24 },
+  { x: 92, y: 76 },
 ];
+const COMPUTERS = [
+  { x: 34, y: 40 },
+  { x: 50, y: 66 },
+  { x: 66, y: 40 },
+  { x: 50, y: 26 },
+];
+// Links as [from, to] point pairs (wallet↔computer and computer↔computer).
+const LINKS: { a: { x: number; y: number }; b: { x: number; y: number } }[] = [
+  { a: WALLETS[0], b: COMPUTERS[0] },
+  { a: WALLETS[1], b: COMPUTERS[1] },
+  { a: WALLETS[2], b: COMPUTERS[2] },
+  { a: WALLETS[3], b: COMPUTERS[1] },
+  { a: COMPUTERS[0], b: COMPUTERS[3] },
+  { a: COMPUTERS[2], b: COMPUTERS[3] },
+  { a: COMPUTERS[0], b: COMPUTERS[1] },
+  { a: COMPUTERS[2], b: COMPUTERS[1] },
+];
+// Put a contract on a subset of links (at their midpoints).
+const CONTRACT_LINKS = [0, 2, 4, 5, 6];
 
 export function Lesson4Contracts({ onComplete, onBack }: VisualProps) {
   const { step, isLast, advance, prev, stepClass } = useStepper(STEP_COUNT);
   const [paid, setPaid] = useState(false); // §1 condition met?
   const [deployed, setDeployed] = useState(false); // §2 deployed on-chain?
-  const [pickedCase, setPickedCase] = useState(0); // §3 selected use-case
   const stop = (e: MouseEvent) => e.stopPropagation();
 
   return (
@@ -105,27 +124,62 @@ export function Lesson4Contracts({ onComplete, onBack }: VisualProps) {
           <>
             <h3 className="scene-heading">Why they matter</h3>
             <p className="scene-paragraph">
-              Smart contracts let strangers transact without trusting each other or a middleman. That
-              one idea powers a whole world of apps. Tap a use-case.
+              Smart contracts let strangers transact without trusting each other or a middleman.
+              Across the world, wallets 👛 connect through computers 💻, and contracts 📄 run their
+              code right on the connections — value and logic flowing everywhere, automatically.
             </p>
-            <div className="diagram diagram--usecases">
-              <div className="usecase-chips">
-                {USE_CASES.map((u, i) => (
-                  <button
-                    key={u.label}
-                    className={i === pickedCase ? 'chip chip--active' : 'chip'}
-                    onClick={(e) => {
-                      stop(e);
-                      setPickedCase(i);
-                    }}
-                  >
-                    {u.emoji} {u.label}
-                  </button>
+            <div className="diagram diagram--world">
+              <span className="globe globe--bg">🌍</span>
+              <svg className="diagram-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                {LINKS.map((l, i) => (
+                  <line
+                    key={`b${i}`}
+                    x1={l.a.x}
+                    y1={l.a.y}
+                    x2={l.b.x}
+                    y2={l.b.y}
+                    stroke="var(--border)"
+                    strokeWidth="0.5"
+                  />
                 ))}
-              </div>
-              <p key={pickedCase} className="usecase-text fade-in">
-                {USE_CASES[pickedCase].text}
-              </p>
+                {LINKS.map((l, i) => (
+                  <line
+                    key={`f${i}`}
+                    x1={l.a.x}
+                    y1={l.a.y}
+                    x2={l.b.x}
+                    y2={l.b.y}
+                    className="net-flow"
+                    stroke="var(--aqua)"
+                    strokeWidth="0.8"
+                    style={{ animationDuration: '0.8s', animationDelay: `${(i % 4) * 0.15}s` }}
+                  />
+                ))}
+              </svg>
+              {WALLETS.map((w, i) => (
+                <span key={`w${i}`} className="world-emoji world-wallet" style={{ left: `${w.x}%`, top: `${w.y}%` }}>
+                  👛
+                </span>
+              ))}
+              {COMPUTERS.map((c, i) => (
+                <span key={`c${i}`} className="world-emoji world-node" style={{ left: `${c.x}%`, top: `${c.y}%` }}>
+                  💻
+                </span>
+              ))}
+              {CONTRACT_LINKS.map((li) => {
+                const l = LINKS[li];
+                const mx = (l.a.x + l.b.x) / 2;
+                const my = (l.a.y + l.b.y) / 2;
+                return (
+                  <span
+                    key={`k${li}`}
+                    className="world-contract"
+                    style={{ left: `${mx}%`, top: `${my}%`, animationDelay: `${(li % 3) * 0.3}s` }}
+                  >
+                    📄
+                  </span>
+                );
+              })}
             </div>
           </>
         )}

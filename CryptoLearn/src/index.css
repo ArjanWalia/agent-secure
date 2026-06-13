@@ -812,49 +812,36 @@ a:hover {
   flex-wrap: wrap;
   justify-content: center;
 }
-.diagram--usecases {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  height: auto;
-  min-height: 180px;
-  padding: 18px;
-  justify-content: center;
+/* Lesson 4 §3 — world of contracts */
+.diagram--world {
+  height: 300px;
 }
-.usecase-chips {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
+.world-emoji {
+  position: absolute;
+  transform: translate(-50%, -50%);
 }
-.chip {
-  border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform var(--ease),
-    border-color var(--ease),
-    box-shadow var(--ease);
+.world-wallet {
+  font-size: 30px;
 }
-.chip:hover {
-  transform: translateY(-2px);
-  border-color: var(--purple);
+.world-node {
+  font-size: 24px;
 }
-.chip--active {
-  border-color: transparent;
-  background: var(--grad);
-  color: #fff;
-  box-shadow: var(--shadow-md);
+.world-contract {
+  position: absolute;
+  font-size: 18px;
+  transform-origin: center;
+  animation: contractPulse 1.4s ease-in-out infinite;
 }
-.usecase-text {
-  font-size: 17px;
-  max-width: 46ch;
-  margin: 0;
+@keyframes contractPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 1;
+  }
 }
 
 /* Lesson 5 — token creation + flow of value */
