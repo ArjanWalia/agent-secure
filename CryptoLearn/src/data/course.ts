@@ -97,7 +97,10 @@ export const COURSE: Course = {
           teach: [{ title: 'Ether', visualId: 'ether' }],
           quiz: 0,
         }),
-        lesson('s2l4', 'Stablecoins (USDC, USDT — value pegged to fiat)'),
+        lesson('s2l4', 'Stablecoins (USDC, USDT — value pegged to fiat)', {
+          teach: [{ title: 'Stablecoins', visualId: 'stablecoins' }],
+          quiz: 0,
+        }),
         lesson('s2l5', 'Token standards on Ethereum (ERC-20 and what makes a token)'),
         lesson('s2l6', 'Other notable categories (altcoins, meme coins, NFTs)'),
       ],
