@@ -55,6 +55,54 @@ export function isCourseComplete(snap: ProgressSnapshot, course: Course = COURSE
   return course.sections.every((s) => isSectionComplete(snap, s.id, course));
 }
 
+// ---- Initialize ----
+// Seed a row in EVERY progress table for this user (course, every section,
+// every lesson, every question), all defaulting to completed = false. Uses
+// ignoreDuplicates so existing progress is never overwritten — only missing
+// rows are inserted. Called when a user is first provisioned.
+export async function initializeProgress(userId: string): Promise<void> {
+  const sectionRows = COURSE.sections.map((s) => ({
+    user_id: userId,
+    course_id: courseId,
+    section_id: s.id,
+    completed: false,
+  }));
+  const lessonRows = COURSE.sections.flatMap((s) =>
+    s.lessons.map((l) => ({
+      user_id: userId,
+      course_id: courseId,
+      section_id: s.id,
+      lesson_id: l.id,
+      completed: false,
+    })),
+  );
+  const questionRows = flattenQuestions().map((q) => ({
+    user_id: userId,
+    course_id: courseId,
+    section_id: q.sectionId,
+    lesson_id: q.lessonId,
+    question_number: q.questionNumber,
+    completed: false,
+  }));
+
+  await supabase
+    .from('course_progress')
+    .upsert([{ user_id: userId, course_id: courseId, completed: false }], {
+      onConflict: 'user_id,course_id',
+      ignoreDuplicates: true,
+    });
+  await supabase
+    .from('section_progress')
+    .upsert(sectionRows, { onConflict: 'user_id,section_id', ignoreDuplicates: true });
+  await supabase
+    .from('lesson_progress')
+    .upsert(lessonRows, { onConflict: 'user_id,section_id,lesson_id', ignoreDuplicates: true });
+  await supabase.from('question_progress').upsert(questionRows, {
+    onConflict: 'user_id,section_id,lesson_id,question_number',
+    ignoreDuplicates: true,
+  });
+}
+
 // ---- Load ----
 export async function loadProgress(userId: string): Promise<ProgressSnapshot> {
   const { data, error } = await supabase
