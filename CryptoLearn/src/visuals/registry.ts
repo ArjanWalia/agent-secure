@@ -17,6 +17,7 @@ import { LessonWalletArchitecture } from './LessonWalletArchitecture';
 import { LessonWalletConnect } from './LessonWalletConnect';
 import { LessonTxFlow } from './LessonTxFlow';
 import { LessonGas } from './LessonGas';
+import { LessonContractExec } from './LessonContractExec';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -49,4 +50,5 @@ export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   'wallet-connect': LessonWalletConnect,
   'tx-flow': LessonTxFlow,
   'gas-fees': LessonGas,
+  'contract-exec': LessonContractExec,
 };
