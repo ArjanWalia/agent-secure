@@ -6,3 +6,7 @@ dist
 *.tsbuildinfo
 vite.config.d.ts
 vite.config.js
+
+# The repo root .gitignore ignores any "data/" dir; re-include our source data.
+!src/data/
+!src/data/**
