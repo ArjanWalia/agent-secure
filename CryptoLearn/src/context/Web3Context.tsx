@@ -111,6 +111,7 @@ interface Web3Value {
   setRecipient: (v: string) => void;
   setAmount: (v: string) => void;
   connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
   selectNetwork: (n: Network) => Promise<void>;
   send: () => Promise<void>;
 }
@@ -139,6 +140,22 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Connection failed');
     }
+  }, [sdk]);
+
+  // Disconnect the wallet and clear Section 5 state — used by progress resets so
+  // the "Try it" section returns to a fresh "Connect" screen (a new account can
+  // then be paired).
+  const disconnect = useCallback(async () => {
+    try {
+      await sdk?.terminate();
+    } catch {
+      // ignore — terminating an already-ended session is harmless
+    }
+    setSelected(null);
+    setRecipient('');
+    setAmount('');
+    setTxHash(null);
+    setError(null);
   }, [sdk]);
 
   const selectNetwork = useCallback(
@@ -219,10 +236,11 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       setRecipient,
       setAmount,
       connect,
+      disconnect,
       selectNetwork,
       send,
     }),
-    [ready, account, chainId, selected, recipient, amount, txHash, busy, connecting, error, connect, selectNetwork, send],
+    [ready, account, chainId, selected, recipient, amount, txHash, busy, connecting, error, connect, disconnect, selectNetwork, send],
   );
 
   return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;

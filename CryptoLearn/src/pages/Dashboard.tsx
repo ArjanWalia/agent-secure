@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { COURSE, lessonQuestionNumbers } from '../data/course';
 import { useProgress } from '../hooks/useProgress';
+import { useWeb3 } from '../context/Web3Context';
 import { Checkmark } from '../components/Checkmark';
 
 export function Dashboard() {
   const navigate = useNavigate();
   const p = useProgress();
+  const w3 = useWeb3();
 
   if (p.loading) return <div className="centered">Loading progress…</div>;
 
@@ -30,7 +32,13 @@ export function Dashboard() {
               {started ? '▶ Resume' : '▶ Start'}
             </button>
           )}
-          <button className="btn btn--ghost" onClick={() => void p.resetCourse()}>
+          <button
+            className="btn btn--ghost"
+            onClick={() => {
+              void p.resetCourse();
+              void w3.disconnect();
+            }}
+          >
             Reset entire course
           </button>
         </div>
@@ -45,7 +53,10 @@ export function Dashboard() {
             </h2>
             <button
               className="btn btn--ghost btn--sm"
-              onClick={() => void p.resetSection(section.id)}
+              onClick={() => {
+                void p.resetSection(section.id);
+                void w3.disconnect();
+              }}
             >
               Reset section
             </button>
@@ -80,7 +91,10 @@ export function Dashboard() {
                   </span>
                   <button
                     className="btn btn--ghost btn--sm"
-                    onClick={() => void p.resetLesson(section.id, lesson.id)}
+                    onClick={() => {
+                      void p.resetLesson(section.id, lesson.id);
+                      void w3.disconnect();
+                    }}
                   >
                     Reset
                   </button>

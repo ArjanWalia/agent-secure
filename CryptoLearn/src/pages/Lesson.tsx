@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { COURSE, lessonQuestionNumbers } from '../data/course';
 import { useProgress } from '../hooks/useProgress';
+import { useWeb3 } from '../context/Web3Context';
 import { Checkmark } from '../components/Checkmark';
 import { VISUALS } from '../visuals/registry';
 
@@ -18,6 +19,7 @@ export function Lesson() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const p = useProgress();
+  const w3 = useWeb3();
 
   const section = COURSE.sections.find((s) => s.id === sectionId);
   const lesson = section?.lessons.find((l) => l.id === lessonId);
@@ -91,6 +93,7 @@ export function Lesson() {
 
   async function redoLesson() {
     await p.resetLesson(sectionId, lessonId);
+    await w3.disconnect();
     setCursor(0);
   }
 
