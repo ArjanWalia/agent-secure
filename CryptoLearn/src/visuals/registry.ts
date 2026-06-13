@@ -8,6 +8,7 @@ import { LessonCoinsTokens } from './LessonCoinsTokens';
 import { LessonBitcoin } from './LessonBitcoin';
 import { LessonEther } from './LessonEther';
 import { LessonStablecoins } from './LessonStablecoins';
+import { LessonTokenStandards } from './LessonTokenStandards';
 
 // Props every interactive visual scene receives.
 export interface VisualProps {
@@ -31,4 +32,5 @@ export const VISUALS: Record<string, ComponentType<VisualProps>> = {
   bitcoin: LessonBitcoin,
   ether: LessonEther,
   stablecoins: LessonStablecoins,
+  'token-standards': LessonTokenStandards,
 };
