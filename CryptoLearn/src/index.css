@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   /* Ethereum-inspired light palette: white, aqua, purple, yellow */
   --white: #ffffff;
@@ -503,9 +507,9 @@ a:hover {
   transform: translate(-50%, -50%);
   font-size: 34px;
   transition:
-    opacity 0.25s ease,
-    left 0.05s linear,
-    top 0.05s linear;
+    opacity 0.3s ease,
+    left 0.14s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.14s cubic-bezier(0.22, 1, 0.36, 1);
   user-select: none;
 }
 .blocks-row {
@@ -564,10 +568,11 @@ a:hover {
 }
 
 /* Fade-in animation for revealed text / emojis */
+/* Smooth, slightly springy entrance/exit used across all lesson scenes. */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(10px) scale(0.985);
   }
   to {
     opacity: 1;
@@ -575,7 +580,8 @@ a:hover {
   }
 }
 .fade-in {
-  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: fadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
 }
 @keyframes fadeOut {
   from {
@@ -584,11 +590,18 @@ a:hover {
   }
   to {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(8px) scale(0.985);
   }
 }
 .fade-out {
-  animation: fadeOut 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: fadeOut 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .fade-out {
+    animation-duration: 0.01ms;
+  }
 }
 
 /* Neural-network node diagram (Lesson 2) */
@@ -951,7 +964,11 @@ a:hover {
   position: absolute;
   transform: translate(-50%, -50%);
   font-size: 26px;
-  transition: left 0.1s linear, top 0.1s linear, opacity 0.3s ease;
+  transition:
+    left 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+  filter: drop-shadow(0 3px 6px rgba(122, 92, 255, 0.35));
 }
 
 /* Lesson 4.4 — the mempool */
@@ -1229,8 +1246,9 @@ a:hover {
   align-items: center;
   font-size: 28px;
   transition:
-    left 0.1s linear,
+    left 0.16s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.3s ease;
+  filter: drop-shadow(0 3px 6px rgba(122, 92, 255, 0.3));
 }
 .txflow-amt {
   font-size: 11px;
@@ -2142,10 +2160,10 @@ a:hover {
   position: absolute;
   transform: translate(-50%, -50%);
   font-size: 28px;
-  filter: drop-shadow(0 0 6px var(--yellow));
+  filter: drop-shadow(0 0 8px var(--yellow));
   transition:
-    left 0.05s linear,
-    top 0.05s linear;
+    left 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .tag {
   display: inline-block;
@@ -2215,11 +2233,14 @@ a:hover {
   background-clip: text;
   color: transparent;
 }
+.landing__hero {
+  text-align: center;
+}
 .landing__hero p {
   color: var(--muted);
   font-size: 18px;
   line-height: 1.6;
-  margin: 0;
+  margin: 0 auto;
   max-width: 46ch;
 }
 .landing__login {

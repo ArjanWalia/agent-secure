@@ -31,7 +31,7 @@ export function Landing() {
 
   return (
     <div className="landing">
-      <section className="landing__hero">
+      <section className="landing__hero animate-fade-in">
         <h1>Learn how crypto moves on Ethereum</h1>
         <p>
           A hands-on course that takes you from blockchain basics to sending your first
@@ -39,7 +39,10 @@ export function Landing() {
         </p>
       </section>
 
-      <form className="card auth-card landing__login" onSubmit={onSubmit}>
+      <form
+        className="card auth-card landing__login animate-fade-in [animation-delay:120ms]"
+        onSubmit={onSubmit}
+      >
         <h2>Log in</h2>
         <label>
           Email
