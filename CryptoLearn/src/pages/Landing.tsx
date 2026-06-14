@@ -30,8 +30,16 @@ export function Landing() {
   }
 
   return (
-    <div className="landing">
-      <section className="landing__hero animate-fade-in">
+    <div className="landing relative overflow-hidden">
+      {/* Decorative animated gradient blobs (Tailwind) */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-purple/30 blur-3xl animate-float" />
+      <div className="pointer-events-none absolute -bottom-20 right-6 h-64 w-64 rounded-full bg-aqua/30 blur-3xl animate-float [animation-delay:1.2s]" />
+      <div className="pointer-events-none absolute top-1/3 left-1/3 h-56 w-56 rounded-full bg-yellow/25 blur-3xl animate-float [animation-delay:2.4s]" />
+
+      <section className="landing__hero animate-fade-in relative z-10">
+        <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-purple/10 px-4 py-1.5 text-sm font-bold text-purple-strong ring-1 ring-purple/20">
+          🎓 Interactive crypto course
+        </span>
         <h1>Learn how crypto moves on Ethereum</h1>
         <p>
           A hands-on course that takes you from blockchain basics to sending your first
@@ -40,7 +48,7 @@ export function Landing() {
       </section>
 
       <form
-        className="card auth-card landing__login animate-fade-in [animation-delay:120ms]"
+        className="card auth-card landing__login animate-fade-in [animation-delay:120ms] relative z-10 transition-all duration-300 ease-smooth hover:-translate-y-1.5 hover:shadow-2xl"
         onSubmit={onSubmit}
       >
         <h2>Log in</h2>
