@@ -176,6 +176,12 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  text-align: center;
+}
+/* Keep input field labels left-aligned for readability. */
+.auth-card label,
+.landing__login label {
+  text-align: left;
 }
 .auth-card h1 {
   margin: 0 0 4px;
@@ -221,17 +227,23 @@ a:hover {
 /* Course header */
 .course-header {
   margin-bottom: 22px;
+  text-align: center;
 }
 .course-header h1 {
   font-size: 26px;
   letter-spacing: -0.02em;
   margin: 0 0 12px;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .course-header__actions {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
 }
 .badge {
   padding: 8px 12px;
@@ -364,11 +376,15 @@ a:hover {
 .back {
   margin-bottom: 14px;
 }
+.lesson-head {
+  text-align: center;
+}
 .lesson-head h1 {
   font-size: 21px;
   letter-spacing: -0.02em;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   margin: 0 0 6px;
 }

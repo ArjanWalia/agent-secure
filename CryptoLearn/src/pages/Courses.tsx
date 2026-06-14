@@ -13,12 +13,15 @@ export function Courses() {
 
   return (
     <div className="container">
-      <header className="course-header">
+      <header className="course-header animate-fade-in">
         <h1>Your courses</h1>
         <p className="muted">Pick a course to get started.</p>
       </header>
 
-      <button className="card course-tile" onClick={() => navigate('/course')}>
+      <button
+        className="card course-tile animate-fade-in [animation-delay:100ms]"
+        onClick={() => navigate('/course')}
+      >
         <div className="course-tile__body">
           <span className="tag">Course</span>
           <h2>{COURSE.title}</h2>
